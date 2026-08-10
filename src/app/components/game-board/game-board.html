@@ -1,0 +1,73 @@
+<div class="board">
+  <div class="lattice">
+    <svg>
+      <defs>
+        @for (node of gameState.board.nodes; track node.id) {
+          @for (neighbor of node.neighbors; track neighbor.id) {
+            @if (neighbor.state !== NodeState.Removed && neighbor.id > node.id) {
+              <linearGradient
+                [attr.id]="'gradient-' + node.id + '-' + neighbor.id"
+                gradientUnits="userSpaceOnUse"
+                [attr.x1]="node.x"
+                [attr.y1]="node.y"
+                [attr.x2]="neighbor.x"
+                [attr.y2]="neighbor.y"
+              >
+                <stop offset="0%" [attr.stop-color]="getNodeColor(node)" />
+
+                <stop offset="100%" [attr.stop-color]="getNodeColor(neighbor)" />
+              </linearGradient>
+            }
+          }
+        }
+      </defs>
+
+      @for (node of gameState.board.nodes; track node.id) {
+        @for (neighbor of node.neighbors; track neighbor.id) {
+          @if (neighbor.state !== NodeState.Removed && neighbor.id > node.id) {
+            <line
+              [attr.x1]="node.x"
+              [attr.y1]="node.y"
+              [attr.x2]="neighbor.x"
+              [attr.y2]="neighbor.y"
+              [attr.stroke]="'url(#gradient-' + node.id + '-' + neighbor.id + ')'"
+            />
+          }
+        }
+      }
+    </svg>
+
+    <!-- Nodes stay outside SVG -->
+    @for (node of gameState.board.nodes; track node.id) {
+      @if (node.state !== NodeState.Removed) {
+        <div
+          class="point-mask"
+          [style.left.px]="node.x"
+          [style.top.px]="node.y"
+          (click)="selectNode(node)"
+        >
+          @if (
+            (node.state === NodeState.Revealed || node.state === NodeState.Defeated) &&
+              getIcon(node);
+            as icon
+          ) {
+            <!-- Revealed node with icon -->
+            <img class="node-icon" [src]="'/icons/' + icon + '.svg'" />
+          } @else {
+            <!-- Empty nodes and unexplored nodes -->
+            <div
+              class="point"
+              [class.revealed]="
+                node.state === NodeState.Revealed ||
+                (node.state === NodeState.Defeated && node.content.lootDrop?.looted)
+              "
+              [class.available]="node.state === NodeState.Available"
+              [class.hidden]="node.state !== NodeState.Hidden"
+              [class.blocked]="node.state === NodeState.Blocked"
+            ></div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

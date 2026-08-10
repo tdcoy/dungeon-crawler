@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  height: 100%;
+  padding: 16px;
+  background: #2f3542;
+  color: white;
+  border-right: 1px solid #666;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+hr {
+  width: 100%;
+  margin: 10px 0;
+}

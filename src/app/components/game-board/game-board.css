@@ -1,0 +1,109 @@
+:host {
+  display: flex;
+  flex: 1;
+  height: 100%;
+}
+
+.board {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+
+  background: #111;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lattice {
+  position: relative;
+
+  width: 600px;
+  height: 600px;
+}
+
+svg {
+  position: absolute;
+  overflow: visible;
+
+  width: 540px;
+  height: 540px;
+
+  top: 0;
+  left: 0;
+}
+
+line {
+  stroke-width: 2;
+}
+
+.node-icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.point-mask {
+  position: absolute;
+
+  width: 24px;
+  height: 24px;
+
+  transform: translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background: #111;
+
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.point {
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+
+  border: 2px solid #555555;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.point.available {
+  border-color: #b89b32;
+}
+
+.point.revealed {
+  background: #e6c84f;
+  border-color: #e6c84f;
+}
+
+.point.hidden {
+  border-color: #555555;
+}
+
+.point.blocked {
+  border-color: #8b0000;
+  opacity: 0.5;
+}
+
+.point.available {
+  border-color: #b89b32;
+}
+
+.point.available:hover {
+  transform: scale(1.25);
+}
+
+.point.revealed {
+  background: #e6c84f;
+
+  border-color: #e6c84f;
+}
