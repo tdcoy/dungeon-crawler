@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { GameStateService } from '../../services/game-state.service';
 
 @Component({
   selector: 'app-inventory-panel',
@@ -7,4 +8,6 @@ import { Component } from '@angular/core';
   styleUrl: './inventory-panel.css',
   standalone: true,
 })
-export class InventoryPanel {}
+export class InventoryPanel {
+  constructor(public gameState: GameStateService) {}
+}

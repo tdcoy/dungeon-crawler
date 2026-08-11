@@ -78,6 +78,8 @@ export class GameBoardComponent {
     if (target.hasPointerCapture(event.pointerId)) {
       target.releasePointerCapture(event.pointerId);
     }
+
+    this.hasDragged = false;
   }
 
   onNodePointerUp(event: PointerEvent, node: GraphNode): void {
@@ -122,11 +124,19 @@ export class GameBoardComponent {
 
   getNodeColor(node: GraphNode): string {
     if (node.state === NodeState.Revealed) {
+      if (node.content.enemy) {
+        return '#8b0000';
+      }
+
       return '#e6c84f'; // yellow
     }
 
     if (node.state === NodeState.Available) {
       return '#a98d32'; // darker yellow
+    }
+
+    if (node.state === NodeState.Blocked) {
+      return '#8b0000';
     }
 
     return '#555555'; // grey
@@ -136,8 +146,7 @@ export class GameBoardComponent {
     const lootDrop = node.content.lootDrop;
 
     if (lootDrop?.looted) {
-      console.log('return looted icon');
-      return null;
+      return 'empty-chest';
     }
 
     if (node.content.enemy && node.state === NodeState.Defeated) {

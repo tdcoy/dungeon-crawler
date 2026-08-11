@@ -5,5 +5,6 @@ export interface Player {
     curHealth: number;
     maxHealth: number;
     damage: number;
+    gold: number;
     inventory: Item[];
 }

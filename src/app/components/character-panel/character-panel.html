@@ -1,16 +1,14 @@
 <h2>Character</h2>
 
 <div class="stat">
-    <span>Health</span>
-    <span>100 / 100</span>
+  <span
+    >Health:
+    {{ gameState.player().curHealth }}
+    /
+    {{ gameState.player().maxHealth }}</span
+  >
 </div>
 
 <div class="stat">
-    <span>Mana</span>
-    <span>25 / 25</span>
-</div>
-
-<div class="stat">
-    <span>Level</span>
-    <span>1</span>
+  <span>Damage {{ gameState.player().damage }}</span>
 </div>

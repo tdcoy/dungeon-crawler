@@ -100,6 +100,10 @@ line {
   border-color: #b89b32;
 }
 
+.point.looted {
+  opacity: 0;
+}
+
 .point.available:hover {
   transform: scale(1.25);
 }

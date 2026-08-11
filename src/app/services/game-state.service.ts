@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Board } from '../models/board';
 import { Player } from '../models/player';
 import { BoardGeneratorService } from './board-generator.service';
@@ -13,7 +13,13 @@ import { LootDropType } from '../models/loot-drop';
 export class GameStateService {
   board!: Board;
 
-  player!: Player;
+  player = signal<Player>({
+    curHealth: 25,
+    maxHealth: 25,
+    damage: 10,
+    gold: 0,
+    inventory: [],
+  });
 
   visitedNodes = new Set<number>();
 
@@ -26,12 +32,11 @@ export class GameStateService {
 
   startGame() {
     this.board = this.boardGenerator.generate(5, 5);
-    this.player = {
-      curHealth: 100,
-      maxHealth: 100,
-      damage: 10,
-      inventory: [],
-    };
+
+    this.player.update((player) => ({
+      ...player,
+      damage: player.damage,
+    }));
   }
 
   private openNeighbors(node: GraphNode): void {
@@ -112,14 +117,17 @@ export class GameStateService {
       return;
     }
 
-    enemy.curHealth -= this.player.damage;
+    enemy.curHealth -= this.player().damage;
+
     if (enemy.curHealth <= 0) {
       this.defeatNode(node);
       return;
     }
-    this.player.curHealth -= enemy.damage;
 
-    console.log('Enemy: ' + enemy.name + ': ' + enemy.curHealth + '/' + enemy.maxHealth);
+    this.player.update((player) => ({
+      ...player,
+      curHealth: Math.max(0, player.curHealth - enemy.damage),
+    }));
   }
 
   defeatNode(node: GraphNode) {
@@ -129,10 +137,35 @@ export class GameStateService {
   }
 
   lootItem(node: GraphNode) {
-    console.log('looted');
     const lootDrop = node.content.lootDrop;
-    if (lootDrop != null) {
-      lootDrop.looted = true;
+    if (lootDrop == null) {
+      return;
+    }
+
+    lootDrop.looted = true;
+    const value = lootDrop?.quantity ?? 0;
+
+    switch (lootDrop.type) {
+      case LootDropType.Gold:
+        this.player.update((player) => ({
+          ...player,
+          gold: player.gold + value,
+        }));
+        return;
+
+      case LootDropType.Health:
+        this.player.update((player) => ({
+          ...player,
+          curHealth: Math.min(
+            player.maxHealth,
+            player.curHealth + Math.round(player.maxHealth * 0.25),
+          ),
+        }));
+        return;
+
+      // Add item to inventory
+      default:
+        return;
     }
   }
 }

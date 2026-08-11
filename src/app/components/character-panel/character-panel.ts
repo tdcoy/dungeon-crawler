@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { GameStateService } from '../../services/game-state.service';
 
 @Component({
   selector: 'app-character-panel',
@@ -7,4 +8,6 @@ import { Component } from '@angular/core';
   templateUrl: './character-panel.html',
   styleUrl: './character-panel.css',
 })
-export class CharacterPanel {}
+export class CharacterPanel {
+  constructor(public gameState: GameStateService) {}
+}

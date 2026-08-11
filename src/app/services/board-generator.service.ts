@@ -315,7 +315,6 @@ export class BoardGeneratorService {
         type: NodeContentType.Health,
         lootDrop: {
           type: LootDropType.Health,
-          quantity: this.generateHealthAmount(),
           looted: false,
         },
       };
@@ -423,10 +422,6 @@ export class BoardGeneratorService {
   }
 
   private generateGoldAmount(): number {
-    return Math.floor(this.random.next() * 10) + 1;
-  }
-
-  private generateHealthAmount(): number {
-    return (Math.floor(this.random.next() * 5) + 1) * 5;
+    return Math.floor(this.random.next() * 5) + 1;
   }
 }
