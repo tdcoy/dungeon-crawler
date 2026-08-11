@@ -1,5 +1,15 @@
-<div class="board">
-  <div class="lattice">
+<div
+  class="board"
+  (wheel)="onWheel($event)"
+  (pointerdown)="onBoardPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event)"
+>
+  <div
+    class="lattice"
+    [style.transform]="'translate(' + panX + 'px, ' + panY + 'px) scale(' + zoom + ')'"
+  >
     <svg>
       <defs>
         @for (node of gameState.board.nodes; track node.id) {
@@ -44,7 +54,7 @@
           class="point-mask"
           [style.left.px]="node.x"
           [style.top.px]="node.y"
-          (click)="selectNode(node)"
+          (pointerup)="onNodePointerUp($event, node)"
         >
           @if (
             (node.state === NodeState.Revealed || node.state === NodeState.Defeated) &&

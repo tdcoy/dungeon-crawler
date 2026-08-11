@@ -63,7 +63,7 @@ export class GameStateService {
     }
   }
 
-  selectNode(node: GraphNode): void {
+  onNodeClick(node: GraphNode): void {
     if (
       node.state === NodeState.Hidden ||
       node.state === NodeState.Removed ||

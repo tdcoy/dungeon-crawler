@@ -21,6 +21,8 @@
 
   width: 600px;
   height: 600px;
+
+  transform-origin: center, center;
 }
 
 svg {
