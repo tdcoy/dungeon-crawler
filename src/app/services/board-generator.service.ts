@@ -100,8 +100,9 @@ export class BoardGeneratorService {
   private chooseBossNode(board: Board): void {
     const maxDistance = Math.max(...board.nodes.map((node) => node.distanceFromStart));
 
-    // Candidate boss nodes picked from the 75% furthest nodes from start
+    // Candidate nodes picked from the 75% furthest nodes from start
     const minDistance = Math.floor(maxDistance * this.bossSpawnDistanceThreshold);
+
     let candidates = board.nodes.filter(
       (node) => node.state !== NodeState.Removed && node.distanceFromStart >= minDistance,
     );
@@ -112,10 +113,18 @@ export class BoardGeneratorService {
     }
 
     const index = Math.floor(this.random.next() * candidates.length);
-    candidates[index].content.type = NodeContentType.Boss;
-    candidates[index].content.enemy = this.enemyGeneratorService.generateRandomBoss(board.level);
+    const node = candidates[index];
 
-    this.calculateDistanceFromBoss(candidates[index]);
+    // Every 3rd level has a boss
+    if (board.level % 3 === 0) {
+      node.content.type = NodeContentType.Boss;
+      node.content.enemy = this.enemyGeneratorService.generateRandomBoss(board.level);
+    } else {
+      // All other levels have an exit
+      node.content.type = NodeContentType.Exit;
+    }
+
+    this.calculateDistanceFromBoss(node);
   }
 
   private openNeighbors(node: GraphNode): void {
@@ -336,13 +345,16 @@ export class BoardGeneratorService {
       return {
         type: NodeContentType.Enemy,
         enemy: this.enemyGeneratorService.generateRandomEnemy(board.level),
-        lootDrop: this.generateLootDrop(),
+        lootDrop: this.generateLootDrop(board),
       };
     }
     if (roll < 0.6) {
       return {
         type: NodeContentType.Loot,
-        lootDrop: { item: this.itemGeneratorService.generateRandomGold(), looted: false },
+        lootDrop: {
+          item: this.itemGeneratorService.generateRandomGold(board.level),
+          looted: false,
+        },
       };
     }
     if (roll < 0.75) {
@@ -357,7 +369,7 @@ export class BoardGeneratorService {
     if (roll < 0.9) {
       return {
         type: NodeContentType.Loot,
-        lootDrop: { item: this.itemGeneratorService.generateRandomItem(), looted: false },
+        lootDrop: { item: this.itemGeneratorService.generateWeapon(board.level), looted: false },
       };
     }
 
@@ -374,7 +386,7 @@ export class BoardGeneratorService {
     return NodeContentType.Empty;
   }
 
-  private generateLootDrop(): LootDrop | null {
+  private generateLootDrop(board: Board): LootDrop | null {
     const roll = this.random.next();
 
     if (roll < 0.5) {
@@ -382,12 +394,12 @@ export class BoardGeneratorService {
     }
     if (roll < 0.65) {
       return {
-        item: this.itemGeneratorService.generateRandomGold(),
+        item: this.itemGeneratorService.generateRandomGold(board.level),
         looted: false,
       };
     }
     return {
-      item: this.itemGeneratorService.generateRandomItem(),
+      item: this.itemGeneratorService.generateWeapon(board.level),
       looted: false,
     };
   }

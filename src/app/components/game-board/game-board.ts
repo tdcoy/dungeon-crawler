@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { GraphNode, NodeState } from '../../models/graph-node';
 import { NodeContentType } from '../../models/node-content';
+import { Enemy, EnemyRarity } from '../../models/enemy';
 
 @Component({
   selector: 'app-game-board',
@@ -13,6 +14,7 @@ export class GameBoardComponent {
   constructor(public gameState: GameStateService) {}
 
   NodeState = NodeState;
+  EnemyRarity = EnemyRarity;
 
   zoom = 1;
   panX = 0;
@@ -179,5 +181,20 @@ export class GameBoardComponent {
       return true;
     }
     return false;
+  }
+
+  canShowDangerValue(node: GraphNode): boolean {
+    return (
+      (node.state === NodeState.Revealed || node.state === NodeState.Defeated) && node.danger > 0
+    );
+  }
+
+  canShowDistanceToExit(node: GraphNode): boolean {
+    return (
+      node.distanceFromBoss > 0 &&
+      (node.content.type === NodeContentType.LootDrop ||
+        node.content.type === NodeContentType.Enemy) &&
+      (node.state === NodeState.Revealed || node.state === NodeState.Defeated)
+    );
   }
 }

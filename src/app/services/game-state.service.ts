@@ -5,17 +5,17 @@ import { BoardGeneratorService } from './board-generator.service';
 import { GraphNode, NodeState } from '../models/graph-node';
 import { NodeContent, NodeContentType } from '../models/node-content';
 import { RandomService } from './random.service';
-import { Item, EquipmentSlot } from '../models/item';
+import { Consumable, Item, LootType, Weapon, Armor } from '../models/item';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameStateService {
-  private readonly baseDamage = 10;
+  private readonly baseDamage = 5;
   private readonly baseArmor = 0;
   private readonly baseBoardSizeX = 5;
   private readonly baseBoardSizeY = 5;
-  private level = 0;
+  private level = 1;
 
   board!: Board;
 
@@ -58,13 +58,13 @@ export class GameStateService {
     this.player.set({
       curHealth: 25,
       maxHealth: 25,
-      damage: 10,
+      damage: 5,
       armor: 0,
       gold: 0,
       inventory: [],
     });
 
-    this.level = 0;
+    this.level = 1;
     this.startGame();
   }
 
@@ -123,11 +123,8 @@ export class GameStateService {
       for (const neighbor of node.neighbors) {
         neighbor.danger = this.getDangerCount(neighbor);
       }
-    } else {
-      // A safe node was revealed.
-      // Calculate its own danger count.
-      node.danger = this.getDangerCount(node);
     }
+    node.danger = this.getDangerCount(node);
   }
 
   getDangerCount(node: GraphNode): number {
@@ -148,9 +145,10 @@ export class GameStateService {
       return;
     }
 
-    console.log(node.distanceFromBoss);
-
-    if (node.content.type === NodeContentType.Exit) {
+    if (
+      node.content.type === NodeContentType.Exit &&
+      (node.state === NodeState.Revealed || node.state === NodeState.Defeated)
+    ) {
       this.goToNextLevel();
       return;
     }
@@ -217,7 +215,7 @@ export class GameStateService {
 
     if (lootDrop != null) {
       node.content = {
-        type: NodeContentType.Loot,
+        type: NodeContentType.LootDrop,
         lootDrop: lootDrop,
       };
 
@@ -228,32 +226,28 @@ export class GameStateService {
   }
 
   lootItem(item: Item) {
-    console.log(item);
-    if (item.itemName === 'Gold Coin') {
+    if (item.name === 'Gold Coin') {
       this.changePlayerGold(item.value);
-    } else if (item.healing != null) {
-      this.healPlayer(item.healing);
+    } else if (item.type === LootType.Consumable) {
+      const consumable = item as Consumable;
+      this.healPlayer(consumable.healing);
     } else {
       this.addItem(item);
     }
   }
 
   damagePlayer(amount: number): void {
-    let damage = 0;
-    if (this.player().armor > 1) {
-      damage = (this.player().armor / 100) * amount;
-    } else {
-      damage = amount;
-    }
+    const armor = this.player().armor ?? 0;
 
-    this.player.update((player) => {
-      const newHealth = Math.max(0, player.curHealth - damage);
+    const damageMultiplier = 100 / (100 + armor);
+    const damageTaken = Math.max(1, Math.round(amount * damageMultiplier));
 
-      return {
-        ...player,
-        curHealth: newHealth,
-      };
-    });
+    Math.max(1, damageTaken);
+
+    this.player.update((player) => ({
+      ...player,
+      curHealth: Math.max(0, player.curHealth - damageTaken),
+    }));
 
     if (this.player().curHealth <= 0) {
       this.endGame();
@@ -287,25 +281,62 @@ export class GameStateService {
   }
 
   equipItem(item: Item): void {
-    if (!item.equipmentSlot) {
+    if (item.type === LootType.Armor) {
+      this.equipArmor(item as Armor);
+    } else if (item.type === LootType.Weapon) {
+      this.equipWeapon(item as Weapon);
+    } else {
       return;
     }
 
-    this.player.update((player) => {
-      const isCurrentlyEquipped = item.equipped;
+    this.updatePlayerStats();
+  }
 
-      const updatedInventory = player.inventory.map((inventoryItem) => {
-        // The item that was clicked
-        if (inventoryItem.itemId === item.itemId) {
+  private equipWeapon(weapon: Weapon): void {
+    this.player.update((player) => {
+      const updatedInventory = player.inventory.map((item) => {
+        // The weapon that was clicked
+        if (item.itemId === weapon.itemId) {
           return {
-            ...inventoryItem,
-            equipped: !isCurrentlyEquipped,
+            ...item,
+            equipped: !weapon.equipped,
           };
         }
 
-        // If we're equipping the clicked item,
-        // unequip anything else in the same slot.
-        if (!isCurrentlyEquipped && inventoryItem.equipmentSlot === item.equipmentSlot) {
+        // If we're equipping the clicked weapon,
+        // unequip the currently equipped weapon.
+        if (!weapon.equipped && item.type === LootType.Weapon) {
+          return {
+            ...item,
+            equipped: false,
+          };
+        }
+
+        return item;
+      });
+
+      return {
+        ...player,
+        inventory: updatedInventory,
+      };
+    });
+
+    this.updatePlayerStats();
+  }
+
+  private equipArmor(armor: Armor): void {
+    this.player.update((player) => {
+      const updatedInventory = player.inventory.map((inventoryItem) => {
+        // Clicked weapon
+        if (inventoryItem.itemId === armor.itemId) {
+          return {
+            ...inventoryItem,
+            equipped: !armor.equipped,
+          };
+        }
+
+        // Unequip other weapons
+        if (!armor.equipped && inventoryItem.type === LootType.Weapon) {
           return {
             ...inventoryItem,
             equipped: false,
@@ -320,8 +351,6 @@ export class GameStateService {
         inventory: updatedInventory,
       };
     });
-
-    this.updatePlayerStats();
   }
 
   private updatePlayerStats(): void {
@@ -330,16 +359,20 @@ export class GameStateService {
       let armor = this.baseArmor;
 
       for (const item of player.inventory) {
-        if (!item.equipped) {
-          continue;
+        if (item.type === LootType.Weapon) {
+          const weapon = item as Weapon;
+
+          if (weapon.equipped) {
+            damage = weapon.damage;
+          }
         }
 
-        if (item.equipmentSlot === 'weapon' && item.damage !== undefined) {
-          damage = item.damage;
-        }
+        if (item.type === LootType.Armor) {
+          const armorItem = item as Armor;
 
-        if (item.equipmentSlot === 'armor' && item.armor !== undefined) {
-          armor = item.armor;
+          if (armorItem.equipped) {
+            armor = armorItem.armor;
+          }
         }
       }
 

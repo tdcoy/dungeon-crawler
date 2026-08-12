@@ -6,6 +6,7 @@ export enum NodeContentType {
   Enemy,
   Boss,
   Loot,
+  LootDrop,
   Start,
   Grave,
   Exit,

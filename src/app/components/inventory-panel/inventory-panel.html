@@ -17,14 +17,14 @@
       (mouseleave)="hideItemTooltip()"
     >
       <!-- Equipped indicator -->
-      <div class="equipped-icon" [class.equipped]="item.equipped"></div>
+      <div class="equipped-icon" [class.equipped]="isItemEquipped(item)"></div>
 
       <!-- Item icon -->
       <img class="inventory-item-icon" [src]="'/icons/' + item.icon + '.svg'" />
 
       <!-- Item name -->
       <span class="inventory-item-name">
-        {{ item.itemName }}
+        {{ item.name }}
       </span>
     </div>
   }
@@ -33,19 +33,15 @@
 @if (itemTooltipVisible && selectedItem) {
   <div class="item-tooltip" [style.left.px]="itemTooltipX" [style.top.px]="itemTooltipY">
     <strong>
-      {{ selectedItem.itemName }}
+      {{ selectedItem.name }}
     </strong>
 
-    @if (selectedItem.damage !== undefined) {
-      <div>Damage: {{ selectedItem.damage }}</div>
+    @if (isWeaponItem(selectedItem)) {
+      <div>Damage: {{ getWeaponItem(selectedItem).damage }}</div>
     }
 
-    @if (selectedItem.armor !== undefined) {
-      <div>Armor: {{ selectedItem.armor }}</div>
-    }
-
-    @if (selectedItem.healing !== undefined) {
-      <div>Healing: {{ selectedItem.healing }}</div>
+    @if (isArmorItem(selectedItem)) {
+      <div>Armor: {{ getArmorItem(selectedItem).armor }}</div>
     }
 
     <div class="item-value">Value: {{ selectedItem.value }} gold</div>

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
-import { Item } from '../../models/item';
+import { Item, Weapon, Armor, LootType } from '../../models/item';
 
 @Component({
   selector: 'app-inventory-panel',
@@ -36,5 +36,33 @@ export class InventoryPanel {
 
   selectItem(item: Item): void {
     this.gameState.equipItem(item);
+  }
+
+  isItemEquipped(item: Item): boolean {
+    if (item.type === LootType.Weapon) {
+      return (item as Weapon).equipped;
+    }
+
+    if (item.type === LootType.Armor) {
+      return (item as Armor).equipped;
+    }
+
+    return false;
+  }
+
+  isArmorItem(item: Item): boolean {
+    return item.type === LootType.Armor;
+  }
+
+  isWeaponItem(item: Item): boolean {
+    return item.type === LootType.Weapon;
+  }
+
+  getWeaponItem(item: Item): Weapon {
+    return item as Weapon;
+  }
+
+  getArmorItem(item: Item): Armor {
+    return item as Armor;
   }
 }

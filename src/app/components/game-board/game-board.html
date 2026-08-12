@@ -58,7 +58,7 @@
             [style.top.px]="node.y"
             (pointerup)="onNodePointerUp($event, node)"
           >
-            @if (node.state === NodeState.Revealed && node.danger > 0) {
+            @if (canShowDangerValue(node)) {
               <div class="danger-display">
                 <img class="danger-icon" src="/icons/skull.svg" alt="" />
                 <span class="danger-value">
@@ -67,13 +67,9 @@
               </div>
             }
 
-            @if (
-              (node.state === NodeState.Revealed || node.state === NodeState.Defeated) &&
-              node.content.enemy != null &&
-              node.distanceFromBoss > 0
-            ) {
+            @if (canShowDistanceToExit(node)) {
               <div class="boss-distance-display">
-                <img class="boss-distance-icon" src="/icons/boss-demon.svg" alt="" />
+                <img class="boss-distance-icon" src="/icons/exit-gate.svg" alt="" />
                 <span class="boss-distance-value">
                   {{ node.distanceFromBoss }}
                 </span>
@@ -98,8 +94,15 @@
                     </span>
                   </div>
 
-                  <!-- Enemy icon -->
-                  <img class="node-icon" [src]="'/icons/' + icon + '.svg'" />
+                  <img
+                    class="node-icon"
+                    [class.enemy-common]="node.content.enemy?.rarity === EnemyRarity.Common"
+                    [class.enemy-uncommon]="node.content.enemy?.rarity === EnemyRarity.Uncommon"
+                    [class.enemy-rare]="node.content.enemy?.rarity === EnemyRarity.Rare"
+                    [class.enemy-boss]="node.content.enemy?.rarity === EnemyRarity.Boss"
+                    [style.mask-image]="'url(/icons/' + node.content.enemy?.icon + '.svg)'"
+                    [style.webkit-mask-image]="'url(/icons/' + node.content.enemy?.icon + '.svg)'"
+                  />
 
                   <!-- Enemy damage -->
                   <div class="enemy-stat enemy-damage">
