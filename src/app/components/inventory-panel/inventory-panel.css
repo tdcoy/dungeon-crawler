@@ -1,0 +1,153 @@
+.inventory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+.inventory-header h2 {
+  margin: 0;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 16px;
+
+  color: #ddd;
+}
+
+.gold-display {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 16px;
+
+  color: #d4af37;
+}
+
+.gold-icon {
+  width: 18px;
+  height: 18px;
+
+  background-color: #d4af37;
+
+  mask: url('/icons/crown-coin.svg') center / contain no-repeat;
+  -webkit-mask: url('/icons/crown-coin.svg') center / contain no-repeat;
+}
+
+.inventory-list {
+  display: flex;
+  flex-direction: column;
+
+  margin-top: 5px;
+
+  max-height: 300px;
+
+  overflow-y: auto;
+
+  padding-right: 2px;
+}
+
+.inventory-item {
+  display: flex;
+  align-items: center;
+
+  height: 28px;
+
+  padding: 2px 2px;
+
+  position: relative;
+
+  cursor: pointer;
+
+  border-radius: 2px;
+}
+
+.inventory-item:hover {
+  background: rgba(140, 116, 69, 0.2);
+}
+
+.equipped-icon {
+  width: 12px;
+  height: 12px;
+
+  flex-shrink: 0;
+}
+
+.equipped-icon.equipped {
+  background-color: #c4a44d;
+
+  mask: url('/icons/equipped.svg') center / contain no-repeat;
+  -webkit-mask: url('/icons/equipped.svg') center / contain no-repeat;
+}
+
+.inventory-item-icon {
+  width: 22px;
+  height: 22px;
+
+  object-fit: contain;
+
+  padding-right: 2px;
+
+  flex-shrink: 0;
+
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.inventory-item-name {
+  font-family: 'MedievalSharp', serif;
+
+  font-size: 13px;
+
+  color: #ddd;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-tooltip {
+  position: fixed;
+
+  width: 250px;
+
+  padding: 10px;
+
+  background: #211b16;
+
+  border: 1px solid #8c7445;
+  border-radius: 4px;
+
+  color: #ddd;
+
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+
+  z-index: 10000;
+
+  pointer-events: none;
+}
+
+.item-tooltip strong {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #c4a44d;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 16px;
+}
+
+.item-value {
+  margin-top: 6px;
+
+  color: #c4a44d;
+}

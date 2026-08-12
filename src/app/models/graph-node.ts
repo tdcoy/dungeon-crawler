@@ -27,6 +27,10 @@ export interface GraphNode {
 
   terrainValue: number;
   distanceFromStart: number;
+  distanceFromBoss: number;
 
   content: NodeContent;
+
+  danger: number;
+  remainingDanger: number;
 }

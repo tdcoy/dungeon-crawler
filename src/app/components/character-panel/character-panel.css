@@ -1,5 +1,139 @@
+.health-container {
+  display: flex;
+  align-items: center;
+}
+
+.health-bar {
+  position: relative;
+  width: 100%;
+  height: 15px;
+
+  background: #333;
+  border: 2px solid #555;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  background: #b83a3a;
+  transition: width 0.2s ease;
+}
+
+.health-text {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  font-size: 11px;
+  font-family: 'Times New Roman', Times, serif, sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: right;
+}
+
+.player-stats {
+  display: flex;
+  flex-direction: column;
+}
+
 .stat {
-    display: flex;
-    justify-content: space-between;
-    margin: 2px 0;
+  display: flex;
+  align-items: center;
+
+  height: 24px;
+}
+
+.heart-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+
+  background-color: #b83a3a;
+
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+
+  mask: url('/icons/health-icon.svg') center / contain no-repeat;
+  -webkit-mask: url('/icons/health-icon.svg') center / contain no-repeat;
+}
+
+.stat-icon {
+  width: 20px;
+  height: 20px;
+
+  margin-right: 5px;
+
+  background-color: #c4a44d;
+
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+}
+
+.damage-icon {
+  mask-image: url('/icons/damage-icon.svg');
+  -webkit-mask-image: url('/icons/damage-icon.svg');
+}
+
+.armor-icon {
+  mask-image: url('/icons/armor-icon.svg');
+  -webkit-mask-image: url('/icons/armor-icon.svg');
+}
+
+.stat-value {
+  font-family: 'MedievalSharp', serif;
+
+  font-size: 16px;
+
+  color: #ddd;
+}
+
+.stat-tooltip {
+  position: fixed;
+
+  width: 220px;
+
+  padding: 10px;
+
+  background: #211b16;
+  border: 1px solid #8c7445;
+  border-radius: 4px;
+
+  color: #ddd;
+
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+
+  z-index: 1000;
+
+  pointer-events: none;
+}
+
+.stat-tooltip strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #c4a44d;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 14px;
+}
+
+.stat-tooltip span {
+  display: block;
 }

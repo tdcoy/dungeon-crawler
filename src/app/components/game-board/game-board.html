@@ -1,83 +1,145 @@
-<div
-  class="board"
-  (wheel)="onWheel($event)"
-  (pointerdown)="onBoardPointerDown($event)"
-  (pointermove)="onPointerMove($event)"
-  (pointerup)="onPointerUp($event)"
-  (pointercancel)="onPointerUp($event)"
->
+<div class="board-container">
   <div
-    class="lattice"
-    [style.transform]="'translate(' + panX + 'px, ' + panY + 'px) scale(' + zoom + ')'"
+    class="board"
+    [class.game-over]="gameState.gameOver()"
+    (wheel)="onWheel($event)"
+    (pointerdown)="onBoardPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp($event)"
+    (pointercancel)="onPointerUp($event)"
   >
-    <svg>
-      <defs>
+    <div
+      class="lattice"
+      [style.transform]="'translate(' + panX + 'px, ' + panY + 'px) scale(' + zoom + ')'"
+    >
+      <svg>
+        <defs>
+          @for (node of gameState.board.nodes; track node.id) {
+            @for (neighbor of node.neighbors; track neighbor.id) {
+              @if (neighbor.state !== NodeState.Removed && neighbor.id > node.id) {
+                <linearGradient
+                  [attr.id]="'gradient-' + node.id + '-' + neighbor.id"
+                  gradientUnits="userSpaceOnUse"
+                  [attr.x1]="node.x"
+                  [attr.y1]="node.y"
+                  [attr.x2]="neighbor.x"
+                  [attr.y2]="neighbor.y"
+                >
+                  <stop offset="0%" [attr.stop-color]="getNodeColor(node)" />
+
+                  <stop offset="100%" [attr.stop-color]="getNodeColor(neighbor)" />
+                </linearGradient>
+              }
+            }
+          }
+        </defs>
+
         @for (node of gameState.board.nodes; track node.id) {
           @for (neighbor of node.neighbors; track neighbor.id) {
             @if (neighbor.state !== NodeState.Removed && neighbor.id > node.id) {
-              <linearGradient
-                [attr.id]="'gradient-' + node.id + '-' + neighbor.id"
-                gradientUnits="userSpaceOnUse"
+              <line
                 [attr.x1]="node.x"
                 [attr.y1]="node.y"
                 [attr.x2]="neighbor.x"
                 [attr.y2]="neighbor.y"
-              >
-                <stop offset="0%" [attr.stop-color]="getNodeColor(node)" />
-
-                <stop offset="100%" [attr.stop-color]="getNodeColor(neighbor)" />
-              </linearGradient>
+                [attr.stroke]="'url(#gradient-' + node.id + '-' + neighbor.id + ')'"
+              />
             }
           }
         }
-      </defs>
+      </svg>
 
+      <!-- Nodes stay outside SVG -->
       @for (node of gameState.board.nodes; track node.id) {
-        @for (neighbor of node.neighbors; track neighbor.id) {
-          @if (neighbor.state !== NodeState.Removed && neighbor.id > node.id) {
-            <line
-              [attr.x1]="node.x"
-              [attr.y1]="node.y"
-              [attr.x2]="neighbor.x"
-              [attr.y2]="neighbor.y"
-              [attr.stroke]="'url(#gradient-' + node.id + '-' + neighbor.id + ')'"
-            />
-          }
+        @if (node.state !== NodeState.Removed) {
+          <div
+            class="point-mask"
+            [style.left.px]="node.x"
+            [style.top.px]="node.y"
+            (pointerup)="onNodePointerUp($event, node)"
+          >
+            @if (node.state === NodeState.Revealed && node.danger > 0) {
+              <div class="danger-display">
+                <img class="danger-icon" src="/icons/skull.svg" alt="" />
+                <span class="danger-value">
+                  {{ node.danger }}
+                </span>
+              </div>
+            }
+
+            @if (
+              (node.state === NodeState.Revealed || node.state === NodeState.Defeated) &&
+              node.content.enemy != null &&
+              node.distanceFromBoss > 0
+            ) {
+              <div class="boss-distance-display">
+                <img class="boss-distance-icon" src="/icons/boss-demon.svg" alt="" />
+                <span class="boss-distance-value">
+                  {{ node.distanceFromBoss }}
+                </span>
+              </div>
+            }
+
+            @if (
+              (node.state === NodeState.Revealed || node.state === NodeState.Defeated) &&
+                getIcon(node);
+              as icon
+            ) {
+              @if (isAliveEnemy(node)) {
+                <div class="enemy-display">
+                  <!-- Enemy health -->
+                  <div class="enemy-stat enemy-health">
+                    <div class="enemy-stat-icon heart-icon"></div>
+
+                    <span>
+                      {{ node.content.enemy?.curHealth }}
+                      /
+                      {{ node.content.enemy?.maxHealth }}
+                    </span>
+                  </div>
+
+                  <!-- Enemy icon -->
+                  <img class="node-icon" [src]="'/icons/' + icon + '.svg'" />
+
+                  <!-- Enemy damage -->
+                  <div class="enemy-stat enemy-damage">
+                    <div class="enemy-stat-icon damage-icon"></div>
+
+                    <span>
+                      {{ node.content.enemy?.damage }}
+                    </span>
+                  </div>
+                </div>
+              } @else {
+                <!-- Revealed node with icon -->
+                <img class="node-icon" [src]="'/icons/' + icon + '.svg'" />
+              }
+            } @else {
+              <div
+                class="point"
+                [class.revealed]="
+                  node.state === NodeState.Revealed ||
+                  (node.state === NodeState.Defeated && node.content.lootDrop?.looted)
+                "
+                [class.available]="node.state === NodeState.Available"
+                [class.hidden]="node.state !== NodeState.Hidden"
+                [class.blocked]="node.state === NodeState.Blocked"
+              ></div>
+            }
+          </div>
         }
       }
-    </svg>
-
-    <!-- Nodes stay outside SVG -->
-    @for (node of gameState.board.nodes; track node.id) {
-      @if (node.state !== NodeState.Removed) {
-        <div
-          class="point-mask"
-          [style.left.px]="node.x"
-          [style.top.px]="node.y"
-          (pointerup)="onNodePointerUp($event, node)"
-        >
-          @if (
-            (node.state === NodeState.Revealed || node.state === NodeState.Defeated) &&
-              getIcon(node);
-            as icon
-          ) {
-            <!-- Revealed node with icon -->
-            <img class="node-icon" [src]="'/icons/' + icon + '.svg'" />
-          } @else {
-            <!-- Empty nodes and unexplored nodes -->
-            <div
-              class="point"
-              [class.revealed]="
-                node.state === NodeState.Revealed ||
-                (node.state === NodeState.Defeated && node.content.lootDrop?.looted)
-              "
-              [class.available]="node.state === NodeState.Available"
-              [class.hidden]="node.state !== NodeState.Hidden"
-              [class.blocked]="node.state === NodeState.Blocked"
-            ></div>
-          }
-        </div>
-      }
-    }
+    </div>
   </div>
+  @if (gameState.gameOver()) {
+    <div class="game-over-overlay">
+      <div class="game-over-popup">
+        <h1>You Died</h1>
+
+        <p>Your adventure has come to an end.</p>
+
+        <button (click)="gameState.restartGame()">Restart</button>
+      </div>
+    </div>
+  }
 </div>

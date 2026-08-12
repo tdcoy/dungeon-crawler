@@ -3,9 +3,9 @@ import { Board } from '../models/board';
 import { RandomService } from './random.service';
 import { GraphNode, NodeState } from '../models/graph-node';
 import { NodeContentType, NodeContent } from '../models/node-content';
-import { Enemy } from '../models/enemy';
-import { LootDrop, LootDropType } from '../models/loot-drop';
-import { Item } from '../models/item';
+import { LootDrop } from '../models/loot-drop';
+import { ItemGeneratorService } from './item-generator.service';
+import { EnemyGeneratorService } from './enemy-generator.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,13 +15,18 @@ export class BoardGeneratorService {
   private readonly offset = 30;
   private readonly bossSpawnDistanceThreshold = 0.7;
 
-  constructor(private random: RandomService) {}
+  constructor(
+    private random: RandomService,
+    private itemGeneratorService: ItemGeneratorService,
+    private enemyGeneratorService: EnemyGeneratorService,
+  ) {}
 
-  generate(width: number, height: number): Board {
+  generate(width: number, height: number, level: number): Board {
     const board: Board = {
       width,
       height,
       nodes: [],
+      level,
     };
 
     this.generateNodes(board);
@@ -30,7 +35,8 @@ export class BoardGeneratorService {
     this.chooseStartNode(board);
     this.chooseBossNode(board);
     this.assignNodeContent(board);
-    this.removeRandomNodes(board, 5);
+
+    //this.removeRandomNodes(board, 2);
     return board;
   }
   generateNodes(board: Board): void {
@@ -56,6 +62,9 @@ export class BoardGeneratorService {
 
           terrainValue: this.random.next(),
           distanceFromStart: -1,
+          distanceFromBoss: -1,
+          danger: 0,
+          remainingDanger: 0,
 
           content: {
             type: NodeContentType.Empty,
@@ -84,7 +93,7 @@ export class BoardGeneratorService {
 
     startNode.content.type = NodeContentType.Start;
 
-    this.calculateDistances(startNode);
+    this.calculateDistanceFromStart(startNode);
     this.openNeighbors(startNode);
   }
 
@@ -104,6 +113,9 @@ export class BoardGeneratorService {
 
     const index = Math.floor(this.random.next() * candidates.length);
     candidates[index].content.type = NodeContentType.Boss;
+    candidates[index].content.enemy = this.enemyGeneratorService.generateRandomBoss(board.level);
+
+    this.calculateDistanceFromBoss(candidates[index]);
   }
 
   private openNeighbors(node: GraphNode): void {
@@ -114,7 +126,7 @@ export class BoardGeneratorService {
     }
   }
 
-  private calculateDistances(start: GraphNode): void {
+  private calculateDistanceFromStart(start: GraphNode): void {
     const queue: GraphNode[] = [];
     start.distanceFromStart = 0;
 
@@ -128,6 +140,25 @@ export class BoardGeneratorService {
         }
 
         neighbor.distanceFromStart = current.distanceFromStart + 1;
+        queue.push(neighbor);
+      }
+    }
+  }
+
+  private calculateDistanceFromBoss(boss: GraphNode): void {
+    const queue: GraphNode[] = [];
+    boss.distanceFromBoss = 0;
+
+    queue.push(boss);
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+
+      for (const neighbor of current.neighbors) {
+        if (neighbor.state === NodeState.Removed || neighbor.distanceFromBoss !== -1) {
+          continue;
+        }
+
+        neighbor.distanceFromBoss = current.distanceFromBoss + 1;
         queue.push(neighbor);
       }
     }
@@ -169,16 +200,20 @@ export class BoardGeneratorService {
   private removeRandomNodes(board: Board, amount: number): void {
     const candidates = board.nodes.filter((node) => !node.protected);
 
-    for (let i = 0; i < amount; i++) {
-      const index = this.random.nextInt(0, candidates.length - 1);
+    let removed = 0;
 
+    while (removed < amount && candidates.length > 0) {
+      const index = this.random.nextInt(0, candidates.length - 1);
       const node = candidates[index];
 
-      if (this.canRemoveNode(board, node)) {
-        node.state === NodeState.Removed;
+      candidates.splice(index, 1);
+
+      if (!this.canRemoveNode(board, node)) {
+        continue;
       }
 
-      candidates.splice(index, 1);
+      node.state = NodeState.Removed;
+      removed++;
     }
   }
 
@@ -211,7 +246,7 @@ export class BoardGeneratorService {
   private canRemoveNode(board: Board, node: GraphNode): boolean {
     const oldConnections = this.disconnectNode(node);
 
-    node.state === NodeState.Removed;
+    node.state = NodeState.Removed;
 
     const start = board.nodes.find((n) => n.state !== NodeState.Removed);
 
@@ -226,7 +261,7 @@ export class BoardGeneratorService {
     const valid = visited.size === remaining.length;
 
     if (!valid) {
-      node.state === NodeState.Available;
+      node.state = NodeState.Available;
 
       this.restoreConnections(node, oldConnections);
     }
@@ -288,39 +323,42 @@ export class BoardGeneratorService {
         if (node.distanceFromStart <= 1) {
           node.content.type = this.getRandomSafeNodeContent();
         } else {
-          node.content = this.getRandomNodeContent();
+          node.content = this.getRandomNodeContent(board);
         }
       }
     }
   }
 
-  private getRandomNodeContent(): NodeContent {
+  private getRandomNodeContent(board: Board): NodeContent {
     const roll = this.random.next();
 
     if (roll < 0.45) {
       return {
         type: NodeContentType.Enemy,
-        enemy: this.generateEnemy(),
+        enemy: this.enemyGeneratorService.generateRandomEnemy(board.level),
         lootDrop: this.generateLootDrop(),
       };
     }
     if (roll < 0.6) {
       return {
-        type: NodeContentType.Gold,
-        lootDrop: { type: LootDropType.Gold, quantity: this.generateGoldAmount(), looted: false },
+        type: NodeContentType.Loot,
+        lootDrop: { item: this.itemGeneratorService.generateRandomGold(), looted: false },
       };
     }
     if (roll < 0.75) {
       return {
-        type: NodeContentType.Health,
+        type: NodeContentType.Loot,
         lootDrop: {
-          type: LootDropType.Health,
+          item: this.itemGeneratorService.generateRandomHealth(),
           looted: false,
         },
       };
     }
     if (roll < 0.9) {
-      return { type: NodeContentType.ChestLarge };
+      return {
+        type: NodeContentType.Loot,
+        lootDrop: { item: this.itemGeneratorService.generateRandomItem(), looted: false },
+      };
     }
 
     return { type: NodeContentType.Empty };
@@ -332,96 +370,25 @@ export class BoardGeneratorService {
     if (roll < 0.6) {
       return NodeContentType.Empty;
     }
-    if (roll < 0.75) {
-      return NodeContentType.Gold;
-    }
 
     return NodeContentType.Empty;
   }
 
-  private generateEnemy(): Enemy {
-    const roll = this.random.next();
-
-    if (roll < 0.3) {
-      return {
-        name: 'Goblin',
-        icon: 'goblin',
-        maxHealth: 20,
-        curHealth: 20,
-        damage: 5,
-      };
-    }
-
-    if (roll < 0.6) {
-      return {
-        name: 'Skeleton',
-        icon: 'skeleton',
-        maxHealth: 15,
-        curHealth: 15,
-        damage: 8,
-      };
-    }
-
-    return {
-      name: 'Troglodyte',
-      icon: 'troglodyte',
-      maxHealth: 25,
-      curHealth: 25,
-      damage: 3,
-    };
-  }
-
-  private generateLootDrop(): LootDrop {
+  private generateLootDrop(): LootDrop | null {
     const roll = this.random.next();
 
     if (roll < 0.5) {
-      return { type: LootDropType.Grave, looted: false };
+      return null;
     }
     if (roll < 0.65) {
-      return { type: LootDropType.Gold, quantity: this.generateGoldAmount(), looted: false };
-    }
-    if (roll < 0.7) {
       return {
-        type: LootDropType.SmallChest,
-        loot: this.generateLoot(LootDropType.SmallChest),
+        item: this.itemGeneratorService.generateRandomGold(),
         looted: false,
       };
     }
     return {
-      type: LootDropType.LargeChest,
-      loot: this.generateLoot(LootDropType.LargeChest),
+      item: this.itemGeneratorService.generateRandomItem(),
       looted: false,
     };
-  }
-
-  private generateLoot(type: LootDropType): Item {
-    switch (type) {
-      case LootDropType.LargeChest:
-        const sword: Item = {
-          itemId: 1,
-          itemName: 'Gladius',
-          icon: 'gladius',
-        };
-        return sword;
-      case LootDropType.SmallChest:
-        const crossbow: Item = {
-          itemId: 2,
-          itemName: 'Crossbow',
-          icon: 'crossbow',
-        };
-        return crossbow;
-
-      default:
-        const woodClub: Item = {
-          itemId: 3,
-          itemName: 'Wood Club',
-          icon: 'wood-club',
-        };
-        return woodClub;
-    }
-  }
-
-  private generateGoldAmount(): number {
-    return Math.floor(this.random.next() * 5) + 1;
   }
 }

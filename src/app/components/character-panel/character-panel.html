@@ -1,14 +1,56 @@
-<h2>Character</h2>
+<div
+  class="health-container"
+  (mouseenter)="showTooltip($event, 'Health', 'The amount of damage you can take until defeated.')"
+  (mousemove)="moveTooltip($event)"
+  (mouseleave)="hideTooltip()"
+>
+  <div class="heart-icon"></div>
 
-<div class="stat">
-  <span
-    >Health:
-    {{ gameState.player().curHealth }}
-    /
-    {{ gameState.player().maxHealth }}</span
+  <div class="health-bar">
+    <div class="health-fill" [style.width.%]="getPlayerHealthPercent()"></div>
+
+    <span class="health-text">
+      {{ gameState.player().curHealth }} /
+      {{ gameState.player().maxHealth }}
+    </span>
+  </div>
+</div>
+
+<div class="player-stats">
+  <div
+    class="stat"
+    (mouseenter)="
+      showTooltip($event, 'Damage', 'The amount of damage you deal when attacking an enemy.')
+    "
+    (mousemove)="moveTooltip($event)"
+    (mouseleave)="hideTooltip()"
   >
+    <div class="stat-icon damage-icon"></div>
+
+    <span class="stat-value">
+      {{ gameState.player().damage }}
+    </span>
+  </div>
+
+  <div
+    class="stat"
+    (mouseenter)="
+      showTooltip($event, 'Armor', 'Percentage of damage mitigated when taking damage.')
+    "
+    (mousemove)="moveTooltip($event)"
+    (mouseleave)="hideTooltip()"
+  >
+    <div class="stat-icon armor-icon"></div>
+
+    <span class="stat-value">
+      {{ gameState.player().armor }}
+    </span>
+  </div>
 </div>
 
-<div class="stat">
-  <span>Damage {{ gameState.player().damage }}</span>
-</div>
+@if (tooltipVisible) {
+  <div class="stat-tooltip" [style.left.px]="tooltipX" [style.top.px]="tooltipY">
+    <strong>{{ tooltipTitle }}</strong>
+    <span>{{ tooltipText }}</span>
+  </div>
+}

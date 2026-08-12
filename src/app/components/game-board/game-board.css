@@ -14,6 +14,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.board img {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
 
 .lattice {
@@ -112,4 +121,231 @@ line {
   background: #e6c84f;
 
   border-color: #e6c84f;
+}
+
+.board-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.game-over-overlay {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.65);
+
+  z-index: 1000;
+}
+
+.game-over-popup {
+  width: 350px;
+  padding: 30px;
+
+  text-align: center;
+
+  background: #211b16;
+  border: 2px solid #8c7445;
+  border-radius: 6px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+
+  color: #ddd;
+}
+
+.game-over-popup h1 {
+  margin-bottom: 15px;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 32px;
+
+  color: #b83a3a;
+}
+
+.game-over-popup p {
+  margin-bottom: 25px;
+}
+
+.game-over-popup button {
+  padding: 10px 25px;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 16px;
+
+  background: #8c7445;
+  color: #211b16;
+
+  border: none;
+  border-radius: 4px;
+
+  cursor: pointer;
+}
+
+.game-over-popup button:hover {
+  background: #b69a5d;
+}
+
+.enemy-display {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 2px;
+
+  width: 55px;
+}
+
+.enemy-display .node-icon {
+  width: 24px;
+  height: 24px;
+
+  object-fit: contain;
+
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000);
+}
+
+.enemy-stat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 2px;
+
+  white-space: nowrap;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 9px;
+  line-height: 1;
+  color: #ddd;
+
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000);
+}
+
+.enemy-stat-icon {
+  width: 11px;
+  height: 11px;
+
+  flex-shrink: 0;
+
+  background-color: #b83a3a;
+
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000);
+}
+
+.enemy-stat-icon.heart-icon {
+  mask-image: url('/icons/health-icon.svg');
+  -webkit-mask-image: url('/icons/health-icon.svg');
+
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000);
+}
+
+.enemy-stat-icon.damage-icon {
+  background-color: #c4a44d;
+
+  mask-image: url('/icons/damage-icon.svg');
+  -webkit-mask-image: url('/icons/damage-icon.svg');
+
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000);
+}
+
+.danger-display {
+  position: absolute;
+
+  left: -14px;
+  bottom: 3px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  width: 40px;
+
+  transform: translateX(-50%);
+
+  pointer-events: none;
+  z-index: 20;
+}
+
+.danger-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000);
+}
+
+.danger-value {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  white-space: nowrap;
+  font-family: 'MedievalSharp', serif;
+
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+
+.boss-distance-display {
+  position: absolute;
+
+  left: 39px;
+  bottom: 3px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  width: 40px;
+
+  transform: translateX(-50%);
+
+  pointer-events: none;
+  z-index: 20;
+}
+
+.boss-distance-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000);
+}
+
+.boss-distance-value {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  white-space: nowrap;
+  font-family: 'MedievalSharp', serif;
+
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
 }

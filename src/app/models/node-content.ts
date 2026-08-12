@@ -4,17 +4,15 @@ import { LootDrop } from './loot-drop';
 export enum NodeContentType {
   Empty,
   Enemy,
-  Gold,
-  Health,
-  Mana,
   Boss,
+  Loot,
   Start,
-  ChestSmall,
-  ChestLarge,
+  Grave,
+  Exit,
 }
 
 export interface NodeContent {
   type: NodeContentType;
   enemy?: Enemy;
-  lootDrop?: LootDrop;
+  lootDrop?: LootDrop | null;
 }
