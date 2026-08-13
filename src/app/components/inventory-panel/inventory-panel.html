@@ -26,6 +26,16 @@
       <span class="inventory-item-name">
         {{ item.name }}
       </span>
+
+      @if (gameState.isMerchantOpen()) {
+        <button class="item-action" type="button" (click)="sellItem(item, $event)">
+          <div class="sell-icon"></div>
+        </button>
+      } @else {
+        <button class="item-action" type="button" (click)="trashItem(item, $event)">
+          <div class="trash-icon"></div>
+        </button>
+      }
     </div>
   }
 </div>
@@ -36,14 +46,18 @@
       {{ selectedItem.name }}
     </strong>
 
-    @if (isWeaponItem(selectedItem)) {
-      <div>Damage: {{ getWeaponItem(selectedItem).damage }}</div>
+    @if (getWeaponDamage(selectedItem) > 0) {
+      <div>Damage: {{ getWeaponDamage(selectedItem) }}</div>
     }
 
-    @if (isArmorItem(selectedItem)) {
-      <div>Armor: {{ getArmorItem(selectedItem).armor }}</div>
+    @if (getArmorValue(selectedItem) > 0) {
+      <div>Armor: {{ getArmorValue(selectedItem) }}</div>
     }
 
-    <div class="item-value">Value: {{ selectedItem.value }} gold</div>
+    @if (getHealingValue(selectedItem) > 0) {
+      <div>Heals: {{ getHealingValue(selectedItem) }}% of Max Health</div>
+    }
+
+    <div class="item-value">Value: {{ getSellValue(selectedItem) }} gold</div>
   </div>
 }

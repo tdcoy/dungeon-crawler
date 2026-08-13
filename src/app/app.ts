@@ -1,14 +1,24 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { Sidebar } from './components/sidebar/sidebar';
-import { GameBoardComponent } from './components/game-board/game-board';
+import { Component, inject } from '@angular/core';
+import {
+  Router,
+  RouterLink,
+  RouterOutlet
+} from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Sidebar, GameBoardComponent],
+  imports: [
+    RouterLink,
+    RouterOutlet
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
-  protected readonly title = signal('dungeon-crawler');
+
+  private router = inject(Router);
+
+  isAboutPage(): boolean {
+    return this.router.url === '/about';
+  }
 }

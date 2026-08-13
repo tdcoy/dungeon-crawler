@@ -148,6 +148,10 @@ export class GameBoardComponent {
       return 'exit-gate';
     }
 
+    if (node.content.type === NodeContentType.Merchant) {
+      return 'merchant';
+    }
+
     if (this.isAliveEnemy(node)) {
       const enemy = node.content.enemy;
       if (enemy == null) {
@@ -196,5 +200,13 @@ export class GameBoardComponent {
         node.content.type === NodeContentType.Enemy) &&
       (node.state === NodeState.Revealed || node.state === NodeState.Defeated)
     );
+  }
+
+  getEnemiesSlain(): number {
+    return this.gameState.player().enemiesSlain;
+  }
+
+  getDamageDealt(): number {
+    return this.gameState.player().damageDealt;
   }
 }

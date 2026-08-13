@@ -1,0 +1,52 @@
+<div class="merchant-overlay">
+  <div class="merchant-window">
+    <!-- Header -->
+    <div class="merchant-header">
+      <div class="merchant-title">
+        <h2>Merchant</h2>
+        <span>Items for sale</span>
+      </div>
+
+      <button class="close-button" type="button" (click)="closeMerchant()">×</button>
+    </div>
+
+    <!-- Shop -->
+    <div class="merchant-content">
+      @if (merchantItems().length === 0) {
+        <div class="empty-shop">The merchant has nothing left to sell.</div>
+      } @else {
+        <div class="merchant-grid">
+          @for (item of merchantItems(); track item.itemId) {
+            <div
+              class="merchant-item"
+              [class.unaffordable]="!canAfford(item)"
+              (click)="buyItem(item)"
+            >
+              <img
+                class="merchant-item-icon"
+                [src]="'/icons/' + item.icon + '.svg'"
+                [alt]="item.name"
+              />
+
+              <div class="merchant-item-name">
+                {{ item.name }}
+              </div>
+
+              @if (getWeaponDamage(item) > 0) {
+                <div class="merchant-item-name">{{ getWeaponDamage(item) }} Damage</div>
+              }
+              @if (getArmorValue(item) > 0) {
+                <div class="merchant-item-name">{{ getArmorValue(item) }} Armor</div>
+              }
+              @if (getHealingValue(item) > 0) {
+                <div class="merchant-item-name">{{ getHealingValue(item) }}% Heal</div>
+              }
+
+              <div class="merchant-item-price">{{ getItemPrice(item) }}g</div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

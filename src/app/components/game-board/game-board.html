@@ -140,6 +140,8 @@
         <h1>You Died</h1>
 
         <p>Your adventure has come to an end.</p>
+        <p>Enemies slain: {{ getEnemiesSlain() }}</p>
+        <p>Damage dealt: {{ getDamageDealt() }}</p>
 
         <button (click)="gameState.restartGame()">Restart</button>
       </div>

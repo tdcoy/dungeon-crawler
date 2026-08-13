@@ -1,7 +1,11 @@
-<div class="layout">
-    <app-sidebar></app-sidebar>
+<header class="game-header">
+  <h1>NODE CREEPER</h1>
 
-    <main class="content">
-        <app-game-board></app-game-board>
-    </main>
-</div>
+  @if (isAboutPage()) {
+    <a routerLink="/" class="about-link"> Home </a>
+  } @else {
+    <a routerLink="/about" class="about-link"> About </a>
+  }
+</header>
+
+<router-outlet></router-outlet>

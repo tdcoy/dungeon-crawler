@@ -1,0 +1,195 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.about-page {
+  width: 100%;
+  height: 100%;
+
+  overflow-y: auto;
+
+  background: #111;
+  color: #ccc;
+
+  padding: 40px 20px;
+}
+
+
+/* Header */
+
+.about-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  margin-bottom: 40px;
+
+  text-align: center;
+}
+
+.about-header > div:nth-child(2) {
+  flex-shrink: 0;
+}
+
+.about-header h2 {
+  margin: 0;
+
+  color: #d8b84c;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 32px;
+  font-weight: normal;
+
+  text-shadow: 2px 2px 2px #000;
+}
+
+.about-header p {
+  margin: 6px 0 0;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+.header-line {
+  flex: 1;
+
+  height: 1px;
+
+  background: #51452f;
+}
+
+/* Sections */
+
+.about-section {
+  margin-bottom: 35px;
+}
+
+.about-section h3 {
+  margin: 0 0 15px;
+
+  padding-bottom: 8px;
+
+  color: #c4a44d;
+
+  border-bottom: 1px solid #393229;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.about-section p {
+  margin: 0 0 12px;
+
+  color: #aaa;
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.about-section strong {
+  color: #d8b84c;
+  font-weight: normal;
+}
+
+/* Features */
+
+.feature-list {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+}
+
+.feature {
+  display: flex;
+  gap: 14px;
+
+  padding: 15px;
+
+  background: #211e1a;
+
+  border: 1px solid #373128;
+  border-radius: 4px;
+}
+
+.feature:hover {
+  border-color: #55472e;
+  background: #25211c;
+}
+
+.feature-icon {
+  display: flex;
+
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #c4a44d;
+
+  font-size: 20px;
+}
+
+.feature h4 {
+  margin: 0 0 5px;
+
+  color: #ddd;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 15px;
+  font-weight: normal;
+}
+
+.feature p {
+  margin: 0;
+
+  color: #888;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Footer */
+
+.about-footer {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 10px;
+
+  padding-top: 25px;
+
+  border-top: 1px solid #393229;
+
+  color: #5f5547;
+
+  font-family: 'MedievalSharp', serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.github-link {
+  color: #d8b84c;
+  text-decoration: none;
+
+  border-bottom: 1px solid transparent;
+
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.github-link:hover {
+  color: #f0d66a;
+  border-bottom-color: #f0d66a;
+}

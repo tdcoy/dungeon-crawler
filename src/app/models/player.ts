@@ -8,4 +8,6 @@ export interface Player {
   damage: number;
   gold: number;
   inventory: Item[];
+  enemiesSlain: number;
+  damageDealt: number;
 }

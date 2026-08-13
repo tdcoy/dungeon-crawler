@@ -1,9 +1,6 @@
-export enum LootType {
-  Gold,
-  Consumable,
-  Weapon,
-  Armor,
-}
+import { ItemComponent } from './item-component';
+
+export type ComponentConstructor<T extends ItemComponent> = new (...args: any[]) => T;
 
 export enum ItemRarity {
   Common,
@@ -13,72 +10,33 @@ export enum ItemRarity {
   Legendary,
 }
 
-export enum WeaponType {
-  Ranged,
-  Dagger,
-  Sword,
-  Axe,
-  Improvised,
-}
+export class Item {
+  constructor(
+    public name: string,
+    public itemId: number,
+    public icon: string,
+    public components: ItemComponent[] = [],
+  ) {}
 
-export enum ArmorType {
-  Cloth,
-  Leather,
-  Chain,
-  Plate,
-}
+  hasComponent<T extends ItemComponent>(componentType: ComponentConstructor<T>): boolean {
+    return this.components.some((component) => component instanceof componentType);
+  }
 
-export interface Item {
-  name: string;
-  itemId: number;
-  icon: string;
-  type: LootType;
-  value: number;
-}
+  getComponent<T extends ItemComponent>(componentType: ComponentConstructor<T>): T | undefined {
+    return this.components.find((component): component is T => component instanceof componentType);
+  }
+  updateItemComponent<T extends ItemComponent>(
+    componentType: new (...args: any[]) => T,
+    updates: Partial<T>,
+  ): Item {
+    const updatedComponents = this.components.map((component) => {
+      if (!(component instanceof componentType)) {
+        return component;
+      }
 
-export interface Equipment extends Item{
-  
-}
+      return Object.assign(Object.create(Object.getPrototypeOf(component)), component, updates);
+    });
 
-export interface Weapon extends Item {
-  weaponType: WeaponType;
-
-  quality: number;
-  rarity: ItemRarity;
-
-  damage: number;
-
-  equipped: boolean;
-}
-
-export interface WeaponDefinition {
-  name: string;
-  icon: string;
-  type: LootType.Weapon;
-  weaponType: WeaponType;
-
-  minQuality: number;
-  maxQuality: number;
-
-  minDamage: number;
-  maxDamage: number;
-
-  value: number;
-}
-
-export interface Armor extends Item {
-  armor: number;
-  equipped: boolean;
-}
-
-export interface Consumable extends Item {
-  healing: number;
-}
-
-export interface ConsumableDefinition {
-  name: string;
-  icon: string;
-  type: LootType.Consumable;
-  value: number;
-  healing: number;
+    return new Item(this.name, this.itemId, this.icon, updatedComponents);
+  }
 }

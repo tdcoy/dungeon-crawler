@@ -1,59 +1,97 @@
-# DungeonCrawler
+# Node Creeper
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.6.
+A simple 2D roguelike adventure built with Angular and TypeScript.
 
-## Development server
+Node Creeper is a path-based roguelike where every decision determines where you can go next. Explore a procedurally generated network of nodes, fight enemies, collect loot, manage your equipment, and find merchants as you attempt to reach the end of your journey.
 
-To start a local development server, run:
+## About the Game
 
-```bash
-ng serve
-```
+Instead of directly controlling a character through a traditional map, Nodebound presents the player with a network of connected nodes.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Starting from the edge of the map, the player chooses which available node to explore.
 
-## Code scaffolding
+Each node can contain:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Enemies
+- Gold
+- Health
+- Weapons
+- Merchants
+- Bosses
+- Empty locations
 
-```bash
-ng generate component component-name
-```
+Revealing a node can change which paths are available, forcing the player to make decisions about how they progress through the map.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Features
 
-```bash
-ng generate --help
-```
+### Procedural Map Generation
 
-## Building
+Each game generates a unique network of connected nodes.
 
-To build the project run:
+- Randomized node positions
+- Procedurally generated connections
+- Random starting location
+- Randomized enemy and loot placement
+- Boss placement based on distance from the starting point
 
-```bash
-ng build
-```
+### Combat
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Enemies have their own health and damage values.
 
-## Running unit tests
+Players can:
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+- Attack enemies
+- Take damage
+- Defeat enemies
+- Collect rewards
+- Track their current and maximum health
 
-```bash
-ng test
-```
+### Inventory & Equipment
 
-## Running end-to-end tests
+Items are built using a component-based system. This allows different types of items to share functionality without requiring a large inheritance hierarchy.
 
-For end-to-end (e2e) testing, run:
+### Merchants
 
-```bash
-ng e2e
-```
+Merchant nodes generate their own inventory based on the current game level.
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Players can:
 
-## Additional Resources
+- Purchase items
+- Sell items from their inventory
+- Spend and earn gold
+- Equip purchased equipment
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Loot
+
+Enemies and exploration nodes can provide different types of rewards, including:
+
+- Gold
+- Health
+- Weapons
+- Other items
+
+### Responsive Game UI
+
+The game uses a dark fantasy-inspired interface with:
+
+- Character and inventory sidebar
+- Item tooltips
+- Equipment indicators
+- Merchant interface
+- Enemy health and damage displays
+- Game-over screen
+
+## Technologies
+
+- **Angular**
+- **TypeScript**
+- **HTML**
+- **CSS**
+- **SVG**
+- **Angular Signals**
+
+## Architecture
+
+The project uses Angular services to manage game state and separate the game systems into individual responsibilities.
+
+Some of the major systems include:

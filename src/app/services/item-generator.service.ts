@@ -1,33 +1,35 @@
 import { Injectable } from '@angular/core';
+import { Item, ItemRarity } from '../models/item';
+import { RandomService } from './random.service';
 import {
-  Item,
-  LootType,
-  Weapon,
-  Armor,
-  Consumable,
-  ItemRarity,
-  WeaponType,
-  ArmorType,
   WeaponDefinition,
   ConsumableDefinition,
-} from '../models/item';
-import { RandomService } from './random.service';
+  ArmorDefinition,
+} from '../models/item-definitions';
+import {
+  WeaponType,
+  EquippableItemComponent,
+  DamageableItemComponent,
+  ConsumableItemComponent,
+  ArmorItemComponent,
+  EquipmentSlot,
+  CurrencyItemComponent,
+  CurrencyType,
+  SellableItemComponent,
+} from '../models/item-component';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ItemGeneratorService {
-  private readonly minRoll = -3;
-  private readonly maxRoll = 5;
-
   private nextItemId = 1;
 
   private swordDefinitions: WeaponDefinition[] = [
     {
       name: 'Iron Sword',
       icon: 'iron-sword',
-      value: 5,
-      type: LootType.Weapon,
+      sellValue: 5,
+      buyValue: 10,
       weaponType: WeaponType.Sword,
       minQuality: 0,
       maxQuality: 20,
@@ -38,8 +40,8 @@ export class ItemGeneratorService {
     {
       name: 'Broadsword',
       icon: 'broadsword',
-      value: 12,
-      type: LootType.Weapon,
+      sellValue: 12,
+      buyValue: 20,
       weaponType: WeaponType.Sword,
       minQuality: 20,
       maxQuality: 40,
@@ -50,8 +52,8 @@ export class ItemGeneratorService {
     {
       name: 'Shark Tooth Sword',
       icon: 'shark-tooth-sword',
-      value: 20,
-      type: LootType.Weapon,
+      sellValue: 20,
+      buyValue: 35,
       weaponType: WeaponType.Sword,
       minQuality: 40,
       maxQuality: 60,
@@ -62,8 +64,8 @@ export class ItemGeneratorService {
     {
       name: 'Elemental Sword',
       icon: 'elemental-sword',
-      value: 35,
-      type: LootType.Weapon,
+      sellValue: 35,
+      buyValue: 50,
       weaponType: WeaponType.Sword,
       minQuality: 60,
       maxQuality: 80,
@@ -74,8 +76,8 @@ export class ItemGeneratorService {
     {
       name: 'Cursed Sword',
       icon: 'cursed-sword',
-      value: 50,
-      type: LootType.Weapon,
+      sellValue: 50,
+      buyValue: 76,
       weaponType: WeaponType.Sword,
       minQuality: 80,
       maxQuality: 100,
@@ -88,8 +90,8 @@ export class ItemGeneratorService {
     {
       name: 'Bone Dagger',
       icon: 'bone-dagger',
-      value: 3,
-      type: LootType.Weapon,
+      sellValue: 3,
+      buyValue: 7,
       weaponType: WeaponType.Dagger,
       minQuality: 0,
       maxQuality: 15,
@@ -100,8 +102,8 @@ export class ItemGeneratorService {
     {
       name: 'Iron Dagger',
       icon: 'iron-dagger',
-      value: 7,
-      type: LootType.Weapon,
+      sellValue: 7,
+      buyValue: 12,
       weaponType: WeaponType.Dagger,
       minQuality: 15,
       maxQuality: 32,
@@ -112,8 +114,8 @@ export class ItemGeneratorService {
     {
       name: 'Curved Dagger',
       icon: 'curved-dagger',
-      value: 12,
-      type: LootType.Weapon,
+      sellValue: 12,
+      buyValue: 22,
       weaponType: WeaponType.Dagger,
       minQuality: 32,
       maxQuality: 46,
@@ -124,8 +126,8 @@ export class ItemGeneratorService {
     {
       name: 'Broad Dagger',
       icon: 'broad-dagger',
-      value: 24,
-      type: LootType.Weapon,
+      sellValue: 24,
+      buyValue: 35,
       weaponType: WeaponType.Dagger,
       minQuality: 46,
       maxQuality: 68,
@@ -136,8 +138,8 @@ export class ItemGeneratorService {
     {
       name: 'Sacrificial Dagger',
       icon: 'sacrificial-dagger',
-      value: 30,
-      type: LootType.Weapon,
+      sellValue: 30,
+      buyValue: 55,
       weaponType: WeaponType.Dagger,
       minQuality: 68,
       maxQuality: 82,
@@ -148,8 +150,8 @@ export class ItemGeneratorService {
     {
       name: 'Cursed Dagger',
       icon: 'cursed-dagger',
-      value: 35,
-      type: LootType.Weapon,
+      sellValue: 45,
+      buyValue: 78,
       weaponType: WeaponType.Sword,
       minQuality: 82,
       maxQuality: 100,
@@ -162,8 +164,8 @@ export class ItemGeneratorService {
     {
       name: 'Stone Axe',
       icon: 'stone-axe',
-      value: 3,
-      type: LootType.Weapon,
+      sellValue: 3,
+      buyValue: 6,
       weaponType: WeaponType.Axe,
       minQuality: 0,
       maxQuality: 20,
@@ -174,8 +176,8 @@ export class ItemGeneratorService {
     {
       name: 'Iron Axe',
       icon: 'iron-axe',
-      value: 10,
-      type: LootType.Weapon,
+      sellValue: 10,
+      buyValue: 18,
       weaponType: WeaponType.Axe,
       minQuality: 20,
       maxQuality: 40,
@@ -186,8 +188,8 @@ export class ItemGeneratorService {
     {
       name: 'Battleaxe',
       icon: 'iron-battle-axe',
-      value: 19,
-      type: LootType.Weapon,
+      sellValue: 19,
+      buyValue: 26,
       weaponType: WeaponType.Axe,
       minQuality: 40,
       maxQuality: 60,
@@ -198,8 +200,8 @@ export class ItemGeneratorService {
     {
       name: 'War Axe',
       icon: 'war-axe',
-      value: 29,
-      type: LootType.Weapon,
+      sellValue: 29,
+      buyValue: 49,
       weaponType: WeaponType.Axe,
       minQuality: 60,
       maxQuality: 80,
@@ -210,8 +212,8 @@ export class ItemGeneratorService {
     {
       name: 'Elemental Axe',
       icon: 'elemental-axe',
-      value: 50,
-      type: LootType.Weapon,
+      sellValue: 50,
+      buyValue: 78,
       weaponType: WeaponType.Axe,
       minQuality: 80,
       maxQuality: 100,
@@ -224,17 +226,74 @@ export class ItemGeneratorService {
     {
       name: 'Healing Root',
       icon: 'healing-root',
-      type: LootType.Consumable,
-      value: 10,
+      sellValue: 10,
+      buyValue: 25,
       healing: 0.15,
     },
 
     {
       name: 'Health Bottle',
       icon: 'heart-bottle',
-      type: LootType.Consumable,
-      value: 10,
+      sellValue: 15,
+      buyValue: 40,
       healing: 0.25,
+    },
+  ];
+
+  private armorDefinitions: ArmorDefinition[] = [
+    {
+      name: 'Cloth Armor',
+      icon: 'cloth-armor',
+      minQuality: 0,
+      maxQuality: 15,
+      minArmor: 1,
+      maxArmor: 8,
+      sellValue: 1,
+      buyValue: 5,
+    },
+
+    {
+      name: 'Leather Armor',
+      icon: 'leather-armor',
+      minQuality: 5,
+      maxQuality: 22,
+      minArmor: 5,
+      maxArmor: 12,
+      sellValue: 7,
+      buyValue: 18,
+    },
+
+    {
+      name: 'Chainmail Armor',
+      icon: 'chain-mail',
+      minQuality: 12,
+      maxQuality: 26,
+      minArmor: 12,
+      maxArmor: 25,
+      sellValue: 15,
+      buyValue: 30,
+    },
+
+    {
+      name: 'Padded Armor',
+      icon: 'padded-armor',
+      minQuality: 18,
+      maxQuality: 30,
+      minArmor: 15,
+      maxArmor: 32,
+      sellValue: 20,
+      buyValue: 42,
+    },
+
+    {
+      name: 'Plate Armor',
+      icon: 'plate-armor',
+      minQuality: 21,
+      maxQuality: 50,
+      minArmor: 20,
+      maxArmor: 50,
+      sellValue: 25,
+      buyValue: 60,
     },
   ];
 
@@ -246,14 +305,22 @@ export class ItemGeneratorService {
 
   constructor(private random: RandomService) {}
 
-  generateWeapon(level: number): Weapon {
-    // 1. Roll quality based on the current map level
+  generateRandomEquipment(level: number): Item {
+    const roll = this.random.nextBool();
+    if (roll) {
+      return this.generateArmorItem(level);
+    }
+    return this.generateWeapon(level);
+  }
+
+  generateWeapon(level: number): Item {
+    // Roll quality based on the current map level
     const quality = this.generateQuality(level);
 
-    // 2. Pick weapon type
+    // Pick weapon type
     const weaponType = this.generateWeaponType();
 
-    // 3. Find weapons of this type that fit the quality
+    // Find weapons of this type that fit the quality
     const possibleWeapons = this.weaponDefinitions.filter(
       (weapon) =>
         weapon.weaponType === weaponType &&
@@ -261,21 +328,21 @@ export class ItemGeneratorService {
         quality <= weapon.maxQuality,
     );
 
-    // 4. Pick one of the possible weapons
+    // Pick one of the possible weapons
     const index = this.random.nextInt(0, possibleWeapons.length - 1);
     const definition = possibleWeapons[index];
 
-    // 5. Rarity is completely independent of quality
+    // Rarity is completely independent of quality
     const rarity = this.generateRarity(level);
 
-    // 6. Determine where within the weapon's stat range the rarity puts us.
+    // Determine where within the weapon's stat range the rarity puts us.
     const [minMultiplier, maxMultiplier] = this.getRarityRange(rarity);
 
     const rarityRoll = this.random.nextFloat();
 
     const multiplier = minMultiplier + (maxMultiplier - minMultiplier) * rarityRoll;
 
-    // 7. Calculate damage
+    // Calculate damage
     const damage = Math.round(
       definition.minDamage + (definition.maxDamage - definition.minDamage) * rarityRoll,
     );
@@ -283,21 +350,78 @@ export class ItemGeneratorService {
     // Apply rarity
     const finalDamage = Math.round(damage * multiplier);
 
-    // 8. Calculate value
-    const value = Math.round(definition.value * multiplier);
+    // Calculate value
+    const value = Math.round(definition.sellValue * multiplier);
 
-    return {
-      name: definition.name,
-      itemId: this.generateItemId(),
-      icon: definition.icon,
-      type: LootType.Weapon,
-      weaponType: definition.weaponType,
-      rarity: rarity,
-      quality: quality,
-      damage: finalDamage,
-      value: value,
-      equipped: false,
-    };
+    // Construct Item
+    const equipableItemComponent = new EquippableItemComponent(
+      false,
+      EquipmentSlot.Weapon,
+      quality,
+      rarity,
+    );
+
+    const damagableItemComponent = new DamageableItemComponent(finalDamage, weaponType);
+
+    const sellableItemComponent = new SellableItemComponent(definition.buyValue, value);
+
+    const weapon = new Item(definition.name, this.generateItemId(), definition.icon, [
+      equipableItemComponent,
+      damagableItemComponent,
+      sellableItemComponent,
+    ]);
+
+    return weapon;
+  }
+
+  generateArmorItem(level: number): Item {
+    // Roll quality based on the current map level
+    const quality = this.generateQuality(level);
+
+    // Pick one of the possible weapons
+    const index = this.random.nextInt(0, this.armorDefinitions.length - 1);
+    const definition = this.armorDefinitions[index];
+
+    // Rarity is completely independent of quality
+    const rarity = this.generateRarity(level);
+
+    // Determine where within the weapon's stat range the rarity puts us.
+    const [minMultiplier, maxMultiplier] = this.getRarityRange(rarity);
+
+    const rarityRoll = this.random.nextFloat();
+
+    const multiplier = minMultiplier + (maxMultiplier - minMultiplier) * rarityRoll;
+
+    // Calculate damage
+    const armor = Math.round(
+      definition.minArmor + (definition.maxArmor - definition.maxArmor) * rarityRoll,
+    );
+
+    // Apply rarity
+    const finalArmor = Math.round(armor * multiplier);
+
+    // Calculate value
+    const value = Math.round(definition.sellValue * multiplier);
+
+    // Construct Item
+    const equipableItemComponent = new EquippableItemComponent(
+      false,
+      EquipmentSlot.Armor,
+      quality,
+      rarity,
+    );
+
+    const armorItemComponent = new ArmorItemComponent(finalArmor);
+
+    const sellableItemComponent = new SellableItemComponent(definition.buyValue, value);
+
+    const armorItem = new Item(definition.name, this.generateItemId(), definition.icon, [
+      equipableItemComponent,
+      armorItemComponent,
+      sellableItemComponent,
+    ]);
+
+    return armorItem;
   }
 
   private generateItemId(): number {
@@ -308,48 +432,44 @@ export class ItemGeneratorService {
     const minGold = 5 + (level - 1) * 3;
     const maxGold = 10 + (level - 1) * 5;
 
-    const gold: Item = {
-      name: 'Gold Coin',
-      itemId: this.generateItemId(),
-      icon: 'crown-coin',
-      type: LootType.Gold,
-      value: this.random.nextInt(minGold, maxGold),
-    };
+    const currencyItemComponent = new CurrencyItemComponent(
+      CurrencyType.Gold,
+      this.random.nextInt(minGold, maxGold),
+    );
 
-    return gold;
+    const item = new Item('Gold Coin', this.generateItemId(), 'crown-coin', [
+      currencyItemComponent,
+    ]);
+
+    return item;
   }
 
   generateRandomHealth(): Item {
     const index = Math.floor(this.random.nextFloat() * this.consumableDefinitions.length);
     const item = this.consumableDefinitions[index];
-    const consumable: Consumable = {
-      name: item.name,
-      itemId: this.generateItemId(),
-      icon: item.icon,
-      value: item.value,
-      type: item.type,
-      healing: item.healing,
-    };
+
+    const consumableItemComponent = new ConsumableItemComponent(item.healing);
+
+    const sellableItemComponent = new SellableItemComponent(item.buyValue, item.sellValue);
+
+    const consumable = new Item(item.name, this.generateItemId(), item.icon, [
+      consumableItemComponent,
+      sellableItemComponent,
+    ]);
 
     return consumable;
   }
 
-  private generateLootType(): LootType {
-    const roll = this.random.nextFloat();
+  generateMerchantItems(level: number, count: number): Item[] {
+    const items: Item[] = [];
 
-    if (roll < 0.35) {
-      return LootType.Weapon;
+    for (let i = 0; i < count; i++) {
+      items.push(this.generateWeapon(level));
     }
 
-    if (roll < 0.6) {
-      return LootType.Armor;
-    }
+    items.push(this.generateRandomHealth());
 
-    if (roll < 0.85) {
-      return LootType.Consumable;
-    }
-
-    return LootType.Gold;
+    return items;
   }
 
   private generateWeaponType(): WeaponType {

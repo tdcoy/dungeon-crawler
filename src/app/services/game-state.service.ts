@@ -5,7 +5,16 @@ import { BoardGeneratorService } from './board-generator.service';
 import { GraphNode, NodeState } from '../models/graph-node';
 import { NodeContent, NodeContentType } from '../models/node-content';
 import { RandomService } from './random.service';
-import { Consumable, Item, LootType, Weapon, Armor } from '../models/item';
+import { Item } from '../models/item';
+import {
+  ArmorItemComponent,
+  ConsumableItemComponent,
+  CurrencyItemComponent,
+  CurrencyType,
+  DamageableItemComponent,
+  EquippableItemComponent,
+  SellableItemComponent,
+} from '../models/item-component';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +22,6 @@ import { Consumable, Item, LootType, Weapon, Armor } from '../models/item';
 export class GameStateService {
   private readonly baseDamage = 5;
   private readonly baseArmor = 0;
-  private readonly baseBoardSizeX = 5;
-  private readonly baseBoardSizeY = 5;
   private level = 1;
 
   board!: Board;
@@ -26,11 +33,17 @@ export class GameStateService {
     armor: this.baseArmor,
     gold: 0,
     inventory: [],
+    enemiesSlain: 0,
+    damageDealt: 0,
   });
 
   gameOver = signal(false);
 
   visitedNodes = new Set<number>();
+
+  private merchantOpen = signal<boolean>(false);
+  merchantItems = signal<Item[]>([]);
+  readonly isMerchantOpen = this.merchantOpen.asReadonly();
 
   constructor(
     private boardGenerator: BoardGeneratorService,
@@ -62,6 +75,8 @@ export class GameStateService {
       armor: 0,
       gold: 0,
       inventory: [],
+      enemiesSlain: 0,
+      damageDealt: 0,
     });
 
     this.level = 1;
@@ -85,6 +100,19 @@ export class GameStateService {
       this.board.height + directionY,
       this.level,
     );
+  }
+
+  getBoardLevel(): number {
+    return this.board.level;
+  }
+
+  openMerchant(node: GraphNode): void {
+    this.merchantItems.set(node.content.inventory ?? []);
+    this.merchantOpen.set(true);
+  }
+
+  closeMerchant(): void {
+    this.merchantOpen.set(false);
   }
 
   private openNeighbors(node: GraphNode): void {
@@ -145,6 +173,11 @@ export class GameStateService {
       return;
     }
 
+    if (node.content.type === NodeContentType.Merchant && node.state === NodeState.Revealed) {
+      this.openMerchant(node);
+      return;
+    }
+
     if (
       node.content.type === NodeContentType.Exit &&
       (node.state === NodeState.Revealed || node.state === NodeState.Defeated)
@@ -192,6 +225,7 @@ export class GameStateService {
     }
 
     enemy.curHealth -= this.player().damage;
+    this.player().damageDealt += this.player().damage;
 
     if (enemy.curHealth <= 0) {
       this.defeatNode(node);
@@ -205,6 +239,8 @@ export class GameStateService {
     node.state = NodeState.Defeated;
 
     this.unblockNeighbors(node);
+
+    this.player().enemiesSlain++;
 
     if (node.content.type === NodeContentType.Boss) {
       node.content.type = NodeContentType.Exit;
@@ -226,14 +262,16 @@ export class GameStateService {
   }
 
   lootItem(item: Item) {
-    if (item.name === 'Gold Coin') {
-      this.changePlayerGold(item.value);
-    } else if (item.type === LootType.Consumable) {
-      const consumable = item as Consumable;
-      this.healPlayer(consumable.healing);
-    } else {
-      this.addItem(item);
+    if (item.hasComponent(CurrencyItemComponent)) {
+      const currency = item.getComponent(CurrencyItemComponent);
+
+      if (currency?.currencyType === CurrencyType.Gold) {
+        this.changePlayerGold(currency!.amount);
+        return;
+      }
     }
+
+    this.addItem(item);
   }
 
   damagePlayer(amount: number): void {
@@ -280,67 +318,55 @@ export class GameStateService {
     }));
   }
 
+  removeItem(item: Item): void {
+    this.player.update((player) => ({
+      ...player,
+      inventory: player.inventory.filter((inventoryItem) => inventoryItem.itemId !== item.itemId),
+    }));
+  }
+
+  useItem(item: Item): void {
+    const equipment = item.getComponent(EquippableItemComponent);
+    const consumbale = item.getComponent(ConsumableItemComponent);
+
+    if (equipment) {
+      this.equipItem(item);
+    }
+    if (consumbale) {
+      this.healPlayer(consumbale.healing);
+      this.removeItem(item);
+    }
+  }
+
   equipItem(item: Item): void {
-    if (item.type === LootType.Armor) {
-      this.equipArmor(item as Armor);
-    } else if (item.type === LootType.Weapon) {
-      this.equipWeapon(item as Weapon);
-    } else {
+    const equipment = item.getComponent(EquippableItemComponent);
+
+    if (!equipment) {
       return;
     }
 
-    this.updatePlayerStats();
-  }
+    const shouldEquip = !equipment.isEquipped;
 
-  private equipWeapon(weapon: Weapon): void {
-    this.player.update((player) => {
-      const updatedInventory = player.inventory.map((item) => {
-        // The weapon that was clicked
-        if (item.itemId === weapon.itemId) {
-          return {
-            ...item,
-            equipped: !weapon.equipped,
-          };
-        }
-
-        // If we're equipping the clicked weapon,
-        // unequip the currently equipped weapon.
-        if (!weapon.equipped && item.type === LootType.Weapon) {
-          return {
-            ...item,
-            equipped: false,
-          };
-        }
-
-        return item;
-      });
-
-      return {
-        ...player,
-        inventory: updatedInventory,
-      };
-    });
-
-    this.updatePlayerStats();
-  }
-
-  private equipArmor(armor: Armor): void {
     this.player.update((player) => {
       const updatedInventory = player.inventory.map((inventoryItem) => {
-        // Clicked weapon
-        if (inventoryItem.itemId === armor.itemId) {
-          return {
-            ...inventoryItem,
-            equipped: !armor.equipped,
-          };
+        const inventoryEquipment = inventoryItem.getComponent(EquippableItemComponent);
+
+        if (!inventoryEquipment) {
+          return inventoryItem;
         }
 
-        // Unequip other weapons
-        if (!armor.equipped && inventoryItem.type === LootType.Weapon) {
-          return {
-            ...inventoryItem,
-            equipped: false,
-          };
+        // Clicked item
+        if (inventoryItem.itemId === item.itemId) {
+          return inventoryItem.updateItemComponent(EquippableItemComponent, {
+            isEquipped: shouldEquip,
+          });
+        }
+
+        // Unequip other items in the same slot
+        if (shouldEquip && inventoryEquipment.equipmentSlot === equipment.equipmentSlot) {
+          return inventoryItem.updateItemComponent(EquippableItemComponent, {
+            isEquipped: false,
+          });
         }
 
         return inventoryItem;
@@ -351,6 +377,8 @@ export class GameStateService {
         inventory: updatedInventory,
       };
     });
+
+    this.updatePlayerStats();
   }
 
   private updatePlayerStats(): void {
@@ -359,20 +387,21 @@ export class GameStateService {
       let armor = this.baseArmor;
 
       for (const item of player.inventory) {
-        if (item.type === LootType.Weapon) {
-          const weapon = item as Weapon;
+        const equippable = item.getComponent(EquippableItemComponent);
 
-          if (weapon.equipped) {
-            damage = weapon.damage;
-          }
+        if (!equippable?.isEquipped) {
+          continue;
         }
 
-        if (item.type === LootType.Armor) {
-          const armorItem = item as Armor;
+        const damageable = item.getComponent(DamageableItemComponent);
+        const armorItem = item.getComponent(ArmorItemComponent);
 
-          if (armorItem.equipped) {
-            armor = armorItem.armor;
-          }
+        if (damageable) {
+          damage = damageable.damage;
+        }
+
+        if (armorItem) {
+          armor = armorItem.armor;
         }
       }
 

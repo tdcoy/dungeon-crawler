@@ -1,6 +1,13 @@
 import { Component } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
-import { Item, Weapon, Armor, LootType } from '../../models/item';
+import { Item } from '../../models/item';
+import {
+  ArmorItemComponent,
+  ConsumableItemComponent,
+  DamageableItemComponent,
+  EquippableItemComponent,
+  SellableItemComponent,
+} from '../../models/item-component';
 
 @Component({
   selector: 'app-inventory-panel',
@@ -35,34 +42,70 @@ export class InventoryPanel {
   }
 
   selectItem(item: Item): void {
-    this.gameState.equipItem(item);
+    this.gameState.useItem(item);
+    this.hideItemTooltip();
   }
 
   isItemEquipped(item: Item): boolean {
-    if (item.type === LootType.Weapon) {
-      return (item as Weapon).equipped;
+    const equipment = item.getComponent(EquippableItemComponent);
+
+    if (!equipment) {
+      return false;
     }
 
-    if (item.type === LootType.Armor) {
-      return (item as Armor).equipped;
+    return equipment.isEquipped;
+  }
+
+  getWeaponDamage(item: Item): number {
+    const damagable = item.getComponent(DamageableItemComponent);
+    if (!damagable) {
+      return 0;
     }
 
-    return false;
+    return damagable.damage;
   }
 
-  isArmorItem(item: Item): boolean {
-    return item.type === LootType.Armor;
+  getArmorValue(item: Item): number {
+    const armorItem = item.getComponent(ArmorItemComponent);
+    if (!armorItem) {
+      return 0;
+    }
+
+    return armorItem.armor;
   }
 
-  isWeaponItem(item: Item): boolean {
-    return item.type === LootType.Weapon;
+  getHealingValue(item: Item): number {
+    const healingItem = item.getComponent(ConsumableItemComponent);
+    if (!healingItem) {
+      return 0;
+    }
+
+    return healingItem.healing * 100;
   }
 
-  getWeaponItem(item: Item): Weapon {
-    return item as Weapon;
+  getSellValue(item: Item): number {
+    const sellable = item.getComponent(SellableItemComponent);
+
+    if (!sellable) {
+      return 0;
+    }
+
+    return sellable.sellValue;
   }
 
-  getArmorItem(item: Item): Armor {
-    return item as Armor;
+  sellItem(item: Item, event: MouseEvent): void {
+    event.stopPropagation();
+
+    this.hideItemTooltip();
+
+    const sellable = item.getComponent(SellableItemComponent);
+    this.gameState.changePlayerGold(sellable!.sellValue);
+    this.gameState.removeItem(item);
+  }
+
+  trashItem(item: Item, event: MouseEvent): void {
+    event.stopPropagation();
+    this.hideItemTooltip();
+    this.gameState.removeItem(item);
   }
 }

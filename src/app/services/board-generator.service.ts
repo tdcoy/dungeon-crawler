@@ -14,6 +14,7 @@ export class BoardGeneratorService {
   private readonly spacing = 120;
   private readonly offset = 30;
   private readonly bossSpawnDistanceThreshold = 0.7;
+  private merchantSpawned = false;
 
   constructor(
     private random: RandomService,
@@ -28,6 +29,8 @@ export class BoardGeneratorService {
       nodes: [],
       level,
     };
+
+    this.merchantSpawned = false;
 
     this.generateNodes(board);
     this.connectOrthogonal(board);
@@ -341,14 +344,17 @@ export class BoardGeneratorService {
   private getRandomNodeContent(board: Board): NodeContent {
     const roll = this.random.next();
 
-    if (roll < 0.45) {
+    // 40% chance
+    if (roll < 0.4) {
       return {
         type: NodeContentType.Enemy,
         enemy: this.enemyGeneratorService.generateRandomEnemy(board.level),
         lootDrop: this.generateLootDrop(board),
       };
     }
-    if (roll < 0.6) {
+
+    // 25% chance
+    if (roll < 0.65) {
       return {
         type: NodeContentType.Loot,
         lootDrop: {
@@ -357,7 +363,9 @@ export class BoardGeneratorService {
         },
       };
     }
-    if (roll < 0.75) {
+
+    // 20% chance
+    if (roll < 0.85) {
       return {
         type: NodeContentType.Loot,
         lootDrop: {
@@ -366,10 +374,26 @@ export class BoardGeneratorService {
         },
       };
     }
+
+    // 5% chance
     if (roll < 0.9) {
       return {
         type: NodeContentType.Loot,
-        lootDrop: { item: this.itemGeneratorService.generateWeapon(board.level), looted: false },
+        lootDrop: { item: this.itemGeneratorService.generateRandomEquipment(board.level), looted: false },
+      };
+    }
+
+    // 3% chance
+    if (roll < 0.93) {
+      if (this.merchantSpawned) {
+        return { type: NodeContentType.Empty };
+      }
+
+      this.merchantSpawned = true;
+
+      return {
+        type: NodeContentType.Merchant,
+        inventory: this.itemGeneratorService.generateMerchantItems(board.level, 10),
       };
     }
 
@@ -399,7 +423,7 @@ export class BoardGeneratorService {
       };
     }
     return {
-      item: this.itemGeneratorService.generateWeapon(board.level),
+      item: this.itemGeneratorService.generateRandomEquipment(board.level),
       looted: false,
     };
   }
