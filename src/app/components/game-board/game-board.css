@@ -260,8 +260,8 @@ line {
 }
 
 .enemy-stat-icon.heart-icon {
-  mask-image: url('/icons/health-icon.svg');
-  -webkit-mask-image: url('/icons/health-icon.svg');
+  mask-image: url('icons/health-icon.svg');
+  -webkit-mask-image: url('icons/health-icon.svg');
 
   filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000)
     drop-shadow(0 -1px 0 #000);
@@ -270,8 +270,8 @@ line {
 .enemy-stat-icon.damage-icon {
   background-color: #c4a44d;
 
-  mask-image: url('/icons/damage-icon.svg');
-  -webkit-mask-image: url('/icons/damage-icon.svg');
+  mask-image: url('icons/damage-icon.svg');
+  -webkit-mask-image: url('icons/damage-icon.svg');
 
   filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000)
     drop-shadow(0 -1px 0 #000);

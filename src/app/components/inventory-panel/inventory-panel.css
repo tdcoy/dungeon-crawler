@@ -33,8 +33,8 @@
 
   background-color: #d4af37;
 
-  mask: url('/icons/crown-coin.svg') center / contain no-repeat;
-  -webkit-mask: url('/icons/crown-coin.svg') center / contain no-repeat;
+  mask: url('icons/crown-coin.svg') center / contain no-repeat;
+  -webkit-mask: url('icons/crown-coin.svg') center / contain no-repeat;
 }
 
 .inventory-list {
@@ -80,8 +80,8 @@
 .equipped-icon.equipped {
   background-color: #c4a44d;
 
-  mask: url('/icons/equipped.svg') center / contain no-repeat;
-  -webkit-mask: url('/icons/equipped.svg') center / contain no-repeat;
+  mask: url('icons/equipped.svg') center / contain no-repeat;
+  -webkit-mask: url('icons/equipped.svg') center / contain no-repeat;
 }
 
 .inventory-item-icon {
@@ -188,8 +188,8 @@
 
   background-color: #f7f6f5;
 
-  mask: url('/icons/sell-item') center / contain no-repeat;
-  -webkit-mask: url('/icons/sell-item.svg') center / contain no-repeat;
+  mask: url('icons/sell-item') center / contain no-repeat;
+  -webkit-mask: url('icons/sell-item.svg') center / contain no-repeat;
 }
 
 .trash-icon {
@@ -198,6 +198,6 @@
 
   background-color: #f7f6f5;
 
-  mask: url('/icons/trash-item') center / contain no-repeat;
-  -webkit-mask: url('/icons/trash-item.svg') center / contain no-repeat;
+  mask: url('icons/trash-item') center / contain no-repeat;
+  -webkit-mask: url('icons/trash-item.svg') center / contain no-repeat;
 }
