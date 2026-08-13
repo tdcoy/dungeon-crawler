@@ -2,6 +2,11 @@
   <app-sidebar></app-sidebar>
 
   <main class="content">
+    @if (gameState.isMerchantOpen()) {
+      <app-merchant></app-merchant>
+    }
     <app-game-board></app-game-board>
   </main>
+
+  
 </div>

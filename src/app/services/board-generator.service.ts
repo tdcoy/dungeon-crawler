@@ -379,16 +379,15 @@ export class BoardGeneratorService {
     if (roll < 0.9) {
       return {
         type: NodeContentType.Loot,
-        lootDrop: { item: this.itemGeneratorService.generateRandomEquipment(board.level), looted: false },
+        lootDrop: {
+          item: this.itemGeneratorService.generateRandomEquipment(board.level),
+          looted: false,
+        },
       };
     }
 
     // 3% chance
-    if (roll < 0.93) {
-      if (this.merchantSpawned) {
-        return { type: NodeContentType.Empty };
-      }
-
+    if (roll < 0.93 && !this.merchantSpawned) {
       this.merchantSpawned = true;
 
       return {

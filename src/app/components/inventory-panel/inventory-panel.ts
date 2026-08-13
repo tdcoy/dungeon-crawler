@@ -99,6 +99,7 @@ export class InventoryPanel {
     this.hideItemTooltip();
 
     const sellable = item.getComponent(SellableItemComponent);
+    this.gameState.unEquipItem(item);
     this.gameState.changePlayerGold(sellable!.sellValue);
     this.gameState.removeItem(item);
   }

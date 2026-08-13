@@ -381,6 +381,33 @@ export class GameStateService {
     this.updatePlayerStats();
   }
 
+  unEquipItem(item: Item): void {
+    const equipment = item.getComponent(EquippableItemComponent);
+
+    if (!equipment || !equipment.isEquipped) {
+      return;
+    }
+
+    this.player.update((player) => {
+      const updatedInventory = player.inventory.map((inventoryItem) => {
+        if (inventoryItem.itemId !== item.itemId) {
+          return inventoryItem;
+        }
+
+        return inventoryItem.updateItemComponent(EquippableItemComponent, {
+          isEquipped: false,
+        });
+      });
+
+      return {
+        ...player,
+        inventory: updatedInventory,
+      };
+    });
+
+    this.updatePlayerStats();
+  }
+
   private updatePlayerStats(): void {
     this.player.update((player) => {
       let damage = this.baseDamage;

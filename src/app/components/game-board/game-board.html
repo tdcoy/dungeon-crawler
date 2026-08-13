@@ -60,7 +60,7 @@
           >
             @if (canShowDangerValue(node)) {
               <div class="danger-display">
-                <img class="danger-icon" src="icons/skull.svg" alt="" />
+                <img class="danger-icon" src="/icons/skull.svg" alt="" />
                 <span class="danger-value">
                   {{ node.danger }}
                 </span>
@@ -69,7 +69,7 @@
 
             @if (canShowDistanceToExit(node)) {
               <div class="boss-distance-display">
-                <img class="boss-distance-icon" src="icons/exit-gate.svg" alt="" />
+                <img class="boss-distance-icon" src="/icons/exit-gate.svg" alt="" />
                 <span class="boss-distance-value">
                   {{ node.distanceFromBoss }}
                 </span>
@@ -100,8 +100,8 @@
                     [class.enemy-uncommon]="node.content.enemy?.rarity === EnemyRarity.Uncommon"
                     [class.enemy-rare]="node.content.enemy?.rarity === EnemyRarity.Rare"
                     [class.enemy-boss]="node.content.enemy?.rarity === EnemyRarity.Boss"
-                    [style.mask-image]="'url(icons/' + node.content.enemy?.icon + '.svg)'"
-                    [style.webkit-mask-image]="'url(icons/' + node.content.enemy?.icon + '.svg)'"
+                    [style.mask-image]="'url(/icons/' + node.content.enemy?.icon + '.svg)'"
+                    [style.webkit-mask-image]="'url(/icons/' + node.content.enemy?.icon + '.svg)'"
                   />
 
                   <!-- Enemy damage -->
@@ -115,7 +115,7 @@
                 </div>
               } @else {
                 <!-- Revealed node with icon -->
-                <img class="node-icon" [src]="'icons/' + icon + '.svg'" />
+                <img class="node-icon" [src]="'/icons/' + icon + '.svg'" />
               }
             } @else {
               <div
